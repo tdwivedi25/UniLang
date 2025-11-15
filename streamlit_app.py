@@ -9,25 +9,25 @@ if "page" not in st.session_state:
     st.session_state.page = "Unity Hub"
 
 # ---- SIDEBAR BUTTON NAVIGATION ----
-if st.sidebar.button("🌐 Unity Hub"):
+if st.sidebar.button("Unity Hub"):
     st.session_state.page = "Unity Hub"
-if st.sidebar.button("🗣️ Language Lab"):
+if st.sidebar.button("Language Lab"):
     st.session_state.page = "Language Lab"
-if st.sidebar.button("⭐ Top Voices"):
-    st.session_state.page = "Top Voices"
-if st.sidebar.button("🗺️ World of Words"):
-    st.session_state.page = "World of Words"
+if st.sidebar.button("Phrasebook"):
+    st.session_state.page = "Phrasebook"
+if st.sidebar.button("Global Map"):
+    st.session_state.page = "Global Map"
 
 # ---- LOCAL IMAGES ----
-home_header = "logo.png"       # 🟦 Home
+home_header = "logo.png"       # 🟦 Unity Hub
 other_header = "header.jpg"    # 🟩 All other pages
 
-# ---- IMAGE FUNCTIONS ----
+# ---- IMAGE RENDER FUNCTIONS ----
 def show_logo():
     st.markdown(
         """
         <div style='display: flex; justify-content: center; margin-bottom: 20px;'>
-            <img src='logo.png' style='width: 180px; border-radius: 20px;'>
+            <img src='logo.png' style='width: 180px;'>
         </div>
         """,
         unsafe_allow_html=True
@@ -43,34 +43,74 @@ def show_header():
         unsafe_allow_html=True
     )
 
-# ---------------------- HOME PAGE ----------------------
+# ---------------------- UNITY HUB ----------------------
 if st.session_state.page == "Unity Hub":
     show_logo()
-    st.header("🏠 Unity Hub")
-    st.write(
+    
+    st.markdown(
         """
-        Welcome to Unilang!  
-        Explore idioms and jokes from around the world.  
-        Use the sidebar to navigate between screens.
-        """
+        <h1 style='text-align: center; color: #1F77B4;'>Welcome to <b>Unilang</b>! 🌍</h1>
+        <h3 style='text-align: center; color: #FF7F0E;'>Where languages and cultures unite!</h3>
+        """,
+        unsafe_allow_html=True
     )
+    
+    st.markdown(
+        """
+        <div style='text-align:center; font-size:18px; line-height:1.8;'>
+        🚀 <b>Explore idioms and jokes from around the world</b><br>
+        🗣️ <b>Learn how expressions are translated in different languages</b><br>
+        🌟 <b>Discover the most popular phrases and share your favorites</b>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    st.markdown("<hr>", unsafe_allow_html=True)
+    
+    st.markdown(
+        "<p style='text-align:center; font-size:16px;'>Ready to start your language adventure?</p>",
+        unsafe_allow_html=True
+    )
+    
+    # Animated Emoji Effect (CSS)
+    st.markdown(
+        """
+        <style>
+        @keyframes bounce {
+            0%, 100% {transform: translateY(0);}
+            50% {transform: translateY(-10px);}
+        }
+        .bounce {
+            display: inline-block;
+            animation: bounce 1s infinite;
+        }
+        </style>
+        <p style='text-align:center; font-size:30px;'><span class='bounce'>🌐✨🎉</span></p>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Get Started Button
+    if st.button("🎯 Get Started!"):
+        st.session_state.page = "Language Lab"
 
-# ------------------- TRANSLATION PAGE -------------------
+# ------------------- LANGUAGE LAB -------------------
 elif st.session_state.page == "Language Lab":
     show_header()
-    st.header("🗣️ Language Lab")
+    st.header("🔄 Language Lab")
     st.write("This page will let users input expressions and see translations (coming soon).")
 
-# -------------------- LEADERBOARD PAGE --------------------
-elif st.session_state.page == "Top Voices":
+# -------------------- PHRASEBOOK --------------------
+elif st.session_state.page == "Phrasebook":
     show_header()
-    st.header("⭐ Top Voices")
+    st.header("🏆 Phrasebook")
     st.write("This page will display the most popular idioms and jokes (coming soon).")
 
-# ----------------------- MAP PAGE -------------------------
-elif st.session_state.page == "World of Words":
+# ----------------------- GLOBAL MAP -------------------------
+elif st.session_state.page == "Global Map":
     show_header()
-    st.header("🗺️ World of Words")
+    st.header("🗺️ Global Map of Idioms & Jokes")
     st.write("Filter and explore idioms & jokes across countries!")
 
     # --- Filters ---

@@ -5,29 +5,25 @@ import random
 # ---- APP CONFIG ----
 st.set_page_config(page_title="Unilang", page_icon="🌍", layout="wide")
 
-# ---- Initialize session state ----
+# ---- SESSION STATE ----
 if "page" not in st.session_state:
     st.session_state.page = "Unity Hub"
 if "map_points" not in st.session_state:
-    st.session_state.map_points = []  # Track submissions for map & leaderboard
+    st.session_state.map_points = []  # For map & leaderboard
 if "submissions" not in st.session_state:
-    st.session_state.submissions = []  # Track submissions for Unity Meter
+    st.session_state.submissions = []  # For top expressions
 
 # ---- Sidebar Navigation ----
-if st.sidebar.button("Unity Hub"):
-    st.session_state.page = "Unity Hub"
-if st.sidebar.button("Language Lab"):
-    st.session_state.page = "Language Lab"
-if st.sidebar.button("Top Voices"):
-    st.session_state.page = "Top Voices"
-if st.sidebar.button("World of Words"):
-    st.session_state.page = "World of Words"
+if st.sidebar.button("Unity Hub"): st.session_state.page = "Unity Hub"
+if st.sidebar.button("Language Lab"): st.session_state.page = "Language Lab"
+if st.sidebar.button("Top Voices"): st.session_state.page = "Top Voices"
+if st.sidebar.button("World of Words"): st.session_state.page = "World of Words"
 
 # ---- Images ----
 HOME_LOGO = "logo.png"
 OTHER_HEADER = "header.jpg"
 
-# ---- Sample translations and data ----
+# ---- Sample translations & coordinates ----
 mock_translations = {
     "Break a leg": {"France":"Bonne chance","Germany":"Viel Glück","Spain":"Buena suerte"},
     "Why did the chicken cross the road?":{"France":"Pourquoi le poulet a traversé la route?","Germany":"Warum ging das Huhn über die Straße?","Spain":"Por qué cruzó el pollo la calle?"},
@@ -35,27 +31,15 @@ mock_translations = {
 }
 
 country_coords = {
-    "United States":[38,-97],
-    "United Kingdom":[54,-2],
-    "France":[46,2],
-    "Germany":[51,10],
-    "Spain":[40,-4],
-    "Brazil":[-10,-55],
-    "Japan":[36,138]
+    "United States":[38,-97], "United Kingdom":[54,-2], "France":[46,2],
+    "Germany":[51,10], "Spain":[40,-4], "Brazil":[-10,-55], "Japan":[36,138]
 }
 
-# ---- HELPER FUNCTION TO ADD SUBMISSION ----
+# ---- Helper to add submission ----
 def add_submission(text, typ):
-    st.session_state.submissions.append({
-        "input": text,
-        "type": typ,
-        "countries": list(country_coords.keys())
-    })
-    st.session_state.map_points.append({
-        "text": text,
-        "type": typ,
-        "countries": list(country_coords.keys())
-    })
+    submission = {"input": text, "type": typ, "countries": list(country_coords.keys())}
+    st.session_state.submissions.append(submission)
+    st.session_state.map_points.append(submission)
 
 # ---------------- UNITY HUB ----------------
 if st.session_state.page == "Unity Hub":
@@ -95,23 +79,28 @@ elif st.session_state.page == "Language Lab":
         target_lang = st.selectbox("Translate to", ["France","Germany","Spain"])
 
     if st.button("Translate!"):
-        if user_text.strip() == "":
+        if not user_text.strip():
             st.warning("Please enter some text!")
         else:
-            # Get translation (mock)
-            translation = mock_translations.get(user_text, {}).get(target_lang, f"{user_text[::-1]}")  # fallback: reverse
+            # Translation with safe fallback
+            translation_dict = mock_translations.get(user_text.strip())
+            if translation_dict and target_lang in translation_dict:
+                translation = translation_dict[target_lang]
+            else:
+                translation = "Translation not available"
+
             st.markdown(f"**Translation in {target_lang}:** {translation}")
 
-            # Calculate Unity Meter (random for demo)
-            unity_percent = random.randint(60, 100)
+            # Unity Meter (random for demo)
+            unity_percent = random.randint(60,100)
             st.progress(unity_percent)
             st.markdown(f"**Unity Meter:** {unity_percent}% resemblance")
 
-            # Top 3 countries (randomly)
-            top3 = random.sample(list(country_coords.keys()), 3)
+            # Top 3 countries (random)
+            top3 = random.sample(list(country_coords.keys()),3)
             st.markdown(f"**Top 3 countries with similar expression:** {', '.join(top3)}")
 
-            # Add to map & submissions
+            # Add submission to map & leaderboard
             add_submission(user_text, choice_type)
 
 # ---------------- WORLD OF WORDS ----------------
@@ -154,7 +143,7 @@ elif st.session_state.page == "Top Voices":
     st.image(OTHER_HEADER, width=600)
     st.header("🏆 Leadership Dashboard")
 
-    # Top jokes/idioms
+    # Top expressions
     st.subheader("🌟 Top Expressions")
     all_texts = [s["input"] for s in st.session_state.submissions]
     top_texts = {text:all_texts.count(text) for text in all_texts}
@@ -162,7 +151,7 @@ elif st.session_state.page == "Top Voices":
     for text,count in top_sorted[:5]:
         st.markdown(f"- {text} ({count} submissions)")
 
-    # Most humorous country (mock)
+    # Most humorous countries
     country_counts = {c:0 for c in country_coords.keys()}
     for sub in st.session_state.submissions:
         for c in sub["countries"]:

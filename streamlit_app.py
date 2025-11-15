@@ -6,26 +6,47 @@ st.set_page_config(page_title="Unilang", page_icon="🌍", layout="wide")
 
 # ---- Initialize session state for page navigation ----
 if "page" not in st.session_state:
-    st.session_state.page = "Home"
+    st.session_state.page = "Unity Hub"
 
 # ---- SIDEBAR BUTTON NAVIGATION ----
-if st.sidebar.button("Home"):
-    st.session_state.page = "Home"
-if st.sidebar.button("Translation"):
-    st.session_state.page = "Translation"
-if st.sidebar.button("Leaderboard"):
-    st.session_state.page = "Leaderboard"
-if st.sidebar.button("Map"):
-    st.session_state.page = "Map"
+if st.sidebar.button("🌐 Unity Hub"):
+    st.session_state.page = "Unity Hub"
+if st.sidebar.button("🗣️ Language Lab"):
+    st.session_state.page = "Language Lab"
+if st.sidebar.button("⭐ Top Voices"):
+    st.session_state.page = "Top Voices"
+if st.sidebar.button("🗺️ World of Words"):
+    st.session_state.page = "World of Words"
 
 # ---- LOCAL IMAGES ----
 home_header = "logo.png"       # 🟦 Home
 other_header = "header.jpg"    # 🟩 All other pages
 
+# ---- IMAGE FUNCTIONS ----
+def show_logo():
+    st.markdown(
+        """
+        <div style='display: flex; justify-content: center; margin-bottom: 20px;'>
+            <img src='logo.png' style='width: 180px; border-radius: 20px;'>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+def show_header():
+    st.markdown(
+        """
+        <div style='display: flex; justify-content: center; margin-bottom: 20px;'>
+            <img src='header.jpg' style='width: 450px; border-radius: 20px;'>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 # ---------------------- HOME PAGE ----------------------
-if st.session_state.page == "Home":
-    st.image(home_header, use_column_width=True)
-    st.header("🏠 Home")
+if st.session_state.page == "Unity Hub":
+    show_logo()
+    st.header("🏠 Unity Hub")
     st.write(
         """
         Welcome to Unilang!  
@@ -35,21 +56,21 @@ if st.session_state.page == "Home":
     )
 
 # ------------------- TRANSLATION PAGE -------------------
-elif st.session_state.page == "Translation":
-    st.image(other_header, use_column_width=True)
-    st.header("🔄 Translation")
+elif st.session_state.page == "Language Lab":
+    show_header()
+    st.header("🗣️ Language Lab")
     st.write("This page will let users input expressions and see translations (coming soon).")
 
 # -------------------- LEADERBOARD PAGE --------------------
-elif st.session_state.page == "Leaderboard":
-    st.image(other_header, use_column_width=True)
-    st.header("🏆 Leaderboard")
+elif st.session_state.page == "Top Voices":
+    show_header()
+    st.header("⭐ Top Voices")
     st.write("This page will display the most popular idioms and jokes (coming soon).")
 
 # ----------------------- MAP PAGE -------------------------
-elif st.session_state.page == "Map":
-    st.image(other_header, use_column_width=True)
-    st.header("🗺️ World Map of Idioms & Jokes")
+elif st.session_state.page == "World of Words":
+    show_header()
+    st.header("🗺️ World of Words")
     st.write("Filter and explore idioms & jokes across countries!")
 
     # --- Filters ---

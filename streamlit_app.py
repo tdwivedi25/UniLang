@@ -22,9 +22,30 @@ if st.sidebar.button("Map"):
 home_header = "logo.png"       # 🟦 Home
 other_header = "header.jpg"    # 🟩 All other pages
 
+# ---- IMAGE DISPLAY FUNCTIONS ----
+def show_logo():
+    st.markdown(
+        """
+        <div style='display: flex; justify-content: center; margin-bottom: 20px;'>
+            <img src='logo.png' style='width: 150px; border-radius: 50%;'>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+def show_header():
+    st.markdown(
+        """
+        <div style='display: flex; justify-content: center; margin-bottom: 20px;'>
+            <img src='header.jpg' style='width: 450px; border-radius: 20px;'>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 # ---------------------- HOME PAGE ----------------------
 if st.session_state.page == "Home":
-    st.image(home_header, use_column_width=True)
+    show_logo()
     st.header("🏠 Home")
     st.write(
         """
@@ -36,19 +57,19 @@ if st.session_state.page == "Home":
 
 # ------------------- TRANSLATION PAGE -------------------
 elif st.session_state.page == "Translation":
-    st.image(other_header, use_column_width=True)
+    show_header()
     st.header("🔄 Translation")
     st.write("This page will let users input expressions and see translations (coming soon).")
 
 # -------------------- LEADERBOARD PAGE --------------------
 elif st.session_state.page == "Leaderboard":
-    st.image(other_header, use_column_width=True)
+    show_header()
     st.header("🏆 Leaderboard")
     st.write("This page will display the most popular idioms and jokes (coming soon).")
 
 # ----------------------- MAP PAGE -------------------------
 elif st.session_state.page == "Map":
-    st.image(other_header, use_column_width=True)
+    show_header()
     st.header("🗺️ World Map of Idioms & Jokes")
     st.write("Filter and explore idioms & jokes across countries!")
 
@@ -100,10 +121,7 @@ elif st.session_state.page == "Map":
     }
 
     # --- Filter logic ---
-    filtered_subs = [
-        sub for sub in submissions
-        if filter_type=="All" or sub["type"]==filter_type
-    ]
+    filtered_subs = [sub for sub in submissions if filter_type=="All" or sub["type"]==filter_type]
 
     lats, lons, colors, texts = [], [], [], []
 
@@ -114,9 +132,7 @@ elif st.session_state.page == "Map":
                 lats.append(lat)
                 lons.append(lon)
                 colors.append("blue" if sub["type"]=="Idiom" else "orange")
-
                 top3_bullets = "<br>   - " + "<br>   - ".join([f"{c}: {expr}" for c, expr in sub["top3"]])
-
                 hover_text = (
                     f"<b>{sub['input']}</b><br>"
                     f"• Literal: {sub['literal']}<br>"

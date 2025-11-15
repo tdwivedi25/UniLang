@@ -41,17 +41,17 @@ country_coords = {
 }
 
 # ---- Helper to add submission ----
-def add_submission(text, typ):
-    st.session_state.submissions.append({
+def add_submission(text, typ, translation, unity_percent, top3):
+    data = {
         "input": text,
         "type": typ,
-        "countries": list(country_coords.keys())
-    })
-    st.session_state.map_points.append({
-        "input": text,
-        "type": typ,
-        "countries": list(country_coords.keys())
-    })
+        "countries": list(country_coords.keys()),
+        "translation": translation,
+        "unity_percent": unity_percent,
+        "top3": top3
+    }
+    st.session_state.submissions.append(data)
+    st.session_state.map_points.append(data)
 
 # ---------------- UNITY HUB ----------------
 if st.session_state.page == "Unity Hub":
@@ -66,6 +66,7 @@ if st.session_state.page == "Unity Hub":
     with col2:
         if st.button("🎯 Get Started!"):
             st.session_state.page = "Language Lab"
+            st.experimental_rerun()  # ensures immediate navigation
 
     # Animated emoji
     st.markdown("""
@@ -94,21 +95,25 @@ elif st.session_state.page == "Language Lab":
         if user_text.strip() == "":
             st.warning("Please enter some text!")
         else:
-            # Get translation: real if exists, else pseudo-translation
-            translation = mock_translations.get(user_text, {}).get(target_lang, "".join(random.sample(user_text, len(user_text))))
+            # --- Translation ---
+            if user_text in mock_translations:
+                translation = mock_translations[user_text].get(target_lang, user_text)
+            else:
+                # pseudo-translation: shuffle letters per word
+                translation = " ".join(["".join(random.sample(word, len(word))) for word in user_text.split()])
             st.markdown(f"**Translation in {target_lang}:** {translation}")
 
-            # Unity Meter (randomized for demo)
-            unity_percent = random.randint(60,100)
+            # --- Unity Meter ---
+            unity_percent = random.randint(60, 100)
             st.progress(unity_percent)
             st.markdown(f"**Unity Meter:** {unity_percent}% resemblance")
 
-            # Top 3 countries
-            top3 = random.sample(list(country_coords.keys()),3)
+            # --- Top 3 countries ---
+            top3 = random.sample(list(country_coords.keys()), 3)
             st.markdown(f"**Top 3 countries with similar expression:** {', '.join(top3)}")
 
-            # Add to map & submissions
-            add_submission(user_text, choice_type)
+            # --- Store submission ---
+            add_submission(user_text, choice_type, translation, unity_percent, top3)
 
 # ---------------- WORLD OF WORDS ----------------
 elif st.session_state.page == "World of Words":
@@ -116,32 +121,58 @@ elif st.session_state.page == "World of Words":
     st.header("🗺️ World of Words")
     st.write("Explore idioms and jokes across countries!")
 
-    # Filter
+    # --- Filters ---
     filter_col, legend_col = st.columns([2,1])
     with filter_col:
         filter_type = st.radio("Filter by Type", ["All","Idiom","Joke"], horizontal=True)
     with legend_col:
         st.markdown("<p style='margin:0;'><span style='color:blue;'>● Idiom</span> &nbsp;&nbsp;<span style='color:orange;'>● Joke</span></p>", unsafe_allow_html=True)
 
-    # Map
-    lats,lons,colors,texts=[],[],[],[]
+    # --- Map ---
+    lats, lons, colors, texts, sizes = [], [], [], [], []
+
     for sub in st.session_state.map_points:
-        if filter_type=="All" or sub["type"]==filter_type:
-            for country in sub["countries"]:
+        if filter_type=="All" or sub.get("type","Unknown")==filter_type:
+            unity = sub.get("unity_percent", random.randint(60, 100))
+            top3 = sub.get("top3", random.sample(list(country_coords.keys()),3))
+            translation = sub.get("translation", sub.get("input","Unknown")[::-1])
+
+            for country in sub.get("countries", []):
                 if country in country_coords:
-                    lat,lon = country_coords[country]
+                    lat, lon = country_coords[country]
                     lats.append(lat)
                     lons.append(lon)
-                    colors.append("blue" if sub["type"]=="Idiom" else "orange")
-                    texts.append(f"{sub.get('input','Unknown')} ({sub.get('type','Unknown')})")
+                    colors.append("blue" if sub.get("type","Idiom")=="Idiom" else "orange")
+                    sizes.append(10 + unity/5)
+
+                    # Hover with top3 in rectangle format
+                    top3_html = "<br>".join([f"&#9632; {c}" for c in top3])
+                    hover_text = (
+                        f"<b>{sub.get('input','Unknown')} ({sub.get('type','Unknown')})</b><br>"
+                        f"<b>Translation:</b> {translation}<br>"
+                        f"<b>Unity Meter:</b> {unity}%<br>"
+                        f"<b>Top 3 Similar Countries:</b><br>{top3_html}"
+                    )
+                    texts.append(hover_text)
 
     fig = go.Figure(go.Scattergeo(
-        lon=lons, lat=lats, text=texts, mode='markers',
-        marker=dict(size=35,color=colors,line=dict(width=1,color='black')), hoverinfo='text'
+        lon=lons,
+        lat=lats,
+        text=texts,
+        mode='markers',
+        marker=dict(size=sizes, color=colors, line=dict(width=1,color='black')),
+        hoverinfo='text'
     ))
     fig.update_layout(
-        geo=dict(showland=True, landcolor="rgb(200,230,201)", showcountries=True, countrycolor="rgb(100,100,100)", projection_type='natural earth'),
-        margin={"r":0,"t":0,"l":0,"b":0}, height=900
+        geo=dict(
+            showland=True,
+            landcolor="rgb(200,230,201)",
+            showcountries=True,
+            countrycolor="rgb(100,100,100)",
+            projection_type='natural earth'
+        ),
+        margin={"r":0,"t":0,"l":0,"b":0},
+        height=1000
     )
     st.plotly_chart(fig, use_container_width=True)
 

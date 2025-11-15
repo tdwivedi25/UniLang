@@ -8,7 +8,7 @@ st.set_page_config(page_title="Unilang", page_icon="🌍", layout="wide")
 if "page" not in st.session_state:
     st.session_state.page = "Unity Hub"
 
-# ---- SIDEBAR BUTTON NAVIGATION ----
+# ---- Sidebar Navigation ----
 if st.sidebar.button("Unity Hub"):
     st.session_state.page = "Unity Hub"
 if st.sidebar.button("Language Lab"):
@@ -22,6 +22,11 @@ if st.sidebar.button("World of Words"):
 home_header = "logo.png"       # 🟦 Unity Hub
 other_header = "header.jpg"    # 🟩 All other pages
 
+# ---- HANDLE HTML BUTTON CLICK ----
+query_params = st.experimental_get_query_params()
+if query_params.get("page", [""])[0] == "LanguageLab":
+    st.session_state.page = "Language Lab"
+
 # ---------------------- UNITY HUB ----------------------
 if st.session_state.page == "Unity Hub":
     # Centered Logo
@@ -34,6 +39,7 @@ if st.session_state.page == "Unity Hub":
         unsafe_allow_html=True
     )
 
+    # Welcome Text
     st.markdown(
         """
         <h1 style='text-align: center; color: #1F77B4; font-size: 60px;'>Welcome to <b>Unilang</b>! 🌍</h1>
@@ -55,11 +61,11 @@ if st.session_state.page == "Unity Hub":
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
-    # ---- Fully centered HTML Get Started button ----
+    # ---- Fully Centered HTML Get Started Button ----
     st.markdown(
         """
         <div style='text-align:center; margin:30px 0;'>
-            <form action="">
+            <form action="?page=LanguageLab">
                 <input type="submit" value="🎯 Get Started!" 
                 style="
                     background-color:#1F77B4; 
@@ -76,12 +82,7 @@ if st.session_state.page == "Unity Hub":
         unsafe_allow_html=True
     )
 
-    # ---- Check if button is clicked ----
-    # Streamlit can't directly detect HTML button click, so we'll use session_state fallback
-    if st.experimental_get_query_params().get("page", [""])[0] == "LanguageLab":
-        st.session_state.page = "Language Lab"
-
-    # Animated Emoji Effect (CSS)
+    # Animated Emoji
     st.markdown(
         """
         <style>

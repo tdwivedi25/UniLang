@@ -8,7 +8,7 @@ st.set_page_config(page_title="Unilang", page_icon="🌍", layout="wide")
 if "page" not in st.session_state:
     st.session_state.page = "Home"
 
-# ---- SIDEBAR BUTTONS ----
+# ---- SIDEBAR BUTTON NAVIGATION ----
 if st.sidebar.button("Home"):
     st.session_state.page = "Home"
 if st.sidebar.button("Translation"):
@@ -18,30 +18,13 @@ if st.sidebar.button("Leaderboard"):
 if st.sidebar.button("Map"):
     st.session_state.page = "Map"
 
-# ---- IMAGE RENDER FUNCTIONS ----
-def show_logo():
-    st.markdown(
-        """
-        <div style='display: flex; justify-content: center; margin-bottom: 20px;'>
-            <img src='logo.png' style='width: 220px; border-radius: 20px;'>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+# ---- LOCAL IMAGES ----
+home_header = "logo.png"       # 🟦 Home
+other_header = "header.jpg"    # 🟩 All other pages
 
-def show_header():
-    st.markdown(
-        """
-        <div style='display: flex; justify-content: center; margin-bottom: 20px;'>
-            <img src='header.jpg' style='width: 450px; border-radius: 20px;'>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-# ---- HOME PAGE ----
+# ---------------------- HOME PAGE ----------------------
 if st.session_state.page == "Home":
-    show_logo()
+    st.image(home_header, use_column_width=True)
     st.header("🏠 Home")
     st.write(
         """
@@ -51,21 +34,21 @@ if st.session_state.page == "Home":
         """
     )
 
-# ---- TRANSLATION PAGE ----
+# ------------------- TRANSLATION PAGE -------------------
 elif st.session_state.page == "Translation":
-    show_header()
+    st.image(other_header, use_column_width=True)
     st.header("🔄 Translation")
     st.write("This page will let users input expressions and see translations (coming soon).")
 
-# ---- LEADERBOARD PAGE ----
+# -------------------- LEADERBOARD PAGE --------------------
 elif st.session_state.page == "Leaderboard":
-    show_header()
+    st.image(other_header, use_column_width=True)
     st.header("🏆 Leaderboard")
     st.write("This page will display the most popular idioms and jokes (coming soon).")
 
-# ---- MAP PAGE ----
+# ----------------------- MAP PAGE -------------------------
 elif st.session_state.page == "Map":
-    show_header()
+    st.image(other_header, use_column_width=True)
     st.header("🗺️ World Map of Idioms & Jokes")
     st.write("Filter and explore idioms & jokes across countries!")
 
@@ -80,7 +63,7 @@ elif st.session_state.page == "Map":
             unsafe_allow_html=True
         )
 
-    # --- Sample map data ---
+    # --- Sample Data ---
     submissions = [
         {
             "input": "Break a leg",
@@ -116,6 +99,7 @@ elif st.session_state.page == "Map":
         "Japan":[36,138]
     }
 
+    # --- Filter logic ---
     filtered_subs = [
         sub for sub in submissions
         if filter_type=="All" or sub["type"]==filter_type
@@ -126,18 +110,17 @@ elif st.session_state.page == "Map":
     for sub in filtered_subs:
         for country in sub["countries"]:
             if country in country_coords:
-                lats.append(country_coords[country][0])
-                lons.append(country_coords[country][1])
+                lat, lon = country_coords[country]
+                lats.append(lat)
+                lons.append(lon)
                 colors.append("blue" if sub["type"]=="Idiom" else "orange")
 
-                countries_of_origin = ", ".join(sub["countries"])
                 top3_bullets = "<br>   - " + "<br>   - ".join([f"{c}: {expr}" for c, expr in sub["top3"]])
 
                 hover_text = (
                     f"<b>{sub['input']}</b><br>"
-                    f"• Country of origin: {countries_of_origin}<br>"
                     f"• Literal: {sub['literal']}<br>"
-                    f"• Similar:{top3_bullets}"
+                    f"• Similar: {top3_bullets}"
                 )
                 texts.append(hover_text)
 
@@ -147,8 +130,7 @@ elif st.session_state.page == "Map":
         text=texts,
         mode='markers',
         marker=dict(size=35, color=colors, line=dict(width=1, color='black')),
-        hoverinfo='text',
-        hoverlabel=dict(bgcolor="white", font_size=12, font_family="Arial")
+        hoverinfo='text'
     ))
 
     fig.update_layout(

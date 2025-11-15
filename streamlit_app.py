@@ -2,59 +2,64 @@ import streamlit as st
 import plotly.graph_objects as go
 
 # ---- APP CONFIG ----
-st.set_page_config(page_title="Unilang", page_icon="🌍", layout="centered")
+st.set_page_config(page_title="Unilang", page_icon="🌍", layout="wide")
 
-# ---- HEADER ----
-st.image(
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfd5j0K8WAz8so_1o2VVLWW8uZ77kwzr_8kg&s",
-    use_column_width=True,
-)
-st.title("🌍 Unilang")
-st.subheader("Unity through language — explore idioms and jokes across the world!")
-st.write("Welcome! Select what you want to do below.")
+# ---- Initialize session state for page navigation ----
+if "page" not in st.session_state:
+    st.session_state.page = "Home"
 
 # ---- SIDEBAR ----
-st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to:", ["Home", "Translation", "Leaderboard", "Map"])
+st.sidebar.title("Screens")
+if st.sidebar.button("Home"):
+    st.session_state.page = "Home"
+if st.sidebar.button("Translation"):
+    st.session_state.page = "Translation"
+if st.sidebar.button("Leaderboard"):
+    st.session_state.page = "Leaderboard"
+if st.sidebar.button("Map"):
+    st.session_state.page = "Map"
+
+# ---- HEADER IMAGE (Optional for every page) ----
+header_img = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfd5j0K8WAz8so_1o2VVLWW8uZ77kwzr_8kg&s"
 
 # ---- HOME PAGE ----
-if page == "Home":
+if st.session_state.page == "Home":
+    st.image(header_img, use_column_width=True)
     st.header("🏠 Home")
-    st.image(
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfd5j0K8WAz8so_1o2VVLWW8uZ77kwzr_8kg&s",
-        use_column_width=True,
-    )
     st.write(
         """
-        Unilang is a platform for:
-        - Exploring idioms and jokes across the world  
-        - Learning how expressions vary by culture  
-        - Seeing translations and humorous equivalents  
+        Welcome to Unilang!  
+        Explore idioms and jokes from around the world.  
+        Use the sidebar to navigate between screens.
         """
     )
 
 # ---- TRANSLATION PAGE ----
-elif page == "Translation":
+elif st.session_state.page == "Translation":
+    st.image(header_img, use_column_width=True)
     st.header("🔄 Translation")
-    st.write("Translation page coming soon! Users will input expressions and see translations here.")
+    st.write("This page will let users input expressions and see translations (coming soon).")
 
 # ---- LEADERBOARD PAGE ----
-elif page == "Leaderboard":
+elif st.session_state.page == "Leaderboard":
+    st.image(header_img, use_column_width=True)
     st.header("🏆 Leaderboard")
-    st.write("Leaderboard page coming soon! Popular idioms and jokes will appear here.")
+    st.write("This page will display the most popular idioms and jokes (coming soon).")
 
 # ---- MAP PAGE ----
-elif page == "Map":
+elif st.session_state.page == "Map":
+    st.image(header_img, use_column_width=True)
     st.header("🗺️ World Map of Idioms & Jokes")
+    st.write("Filter and explore idioms & jokes across countries!")
 
-    # --- Filters and legend ---
+    # --- Filters ---
     filter_col, legend_col = st.columns([2,1])
     with filter_col:
         filter_type = st.radio("Filter by Type", ["All", "Idiom", "Joke"], horizontal=True)
     with legend_col:
         st.markdown("<p style='margin:0;'><span style='color:blue;'>● Idiom</span> &nbsp;&nbsp; <span style='color:orange;'>● Joke</span></p>", unsafe_allow_html=True)
 
-    # --- Sample data ---
+    # --- Sample map data ---
     submissions = [
         {"input": "Break a leg", "literal": "Wish you luck", "type": "Idiom",
          "countries": ["United States","United Kingdom","Germany","France"],

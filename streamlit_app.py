@@ -23,9 +23,10 @@ home_header = "logo.png"       # 🟦 Unity Hub
 other_header = "header.jpg"    # 🟩 All other pages
 
 # ---- HANDLE HTML BUTTON CLICK ----
-query_params = st.experimental_get_query_params()
-if query_params.get("page", [""])[0] == "LanguageLab":
+query_params = st.query_params
+if query_params.get("page") == "LanguageLab":
     st.session_state.page = "Language Lab"
+    st.query_params.clear()  # Clear query params after handling
 
 # ---------------------- UNITY HUB ----------------------
 if st.session_state.page == "Unity Hub":

@@ -13,10 +13,10 @@ if st.sidebar.button("Unity Hub"):
     st.session_state.page = "Unity Hub"
 if st.sidebar.button("Language Lab"):
     st.session_state.page = "Language Lab"
-if st.sidebar.button("Phrasebook"):
-    st.session_state.page = "Phrasebook"
-if st.sidebar.button("Global Map"):
-    st.session_state.page = "Global Map"
+if st.sidebar.button("Top Voices"):
+    st.session_state.page = "Top Voices"
+if st.sidebar.button("World of Words"):
+    st.session_state.page = "World of Words"
 
 # ---- LOCAL IMAGES ----
 home_header = "logo.png"       # 🟦 Unity Hub
@@ -68,10 +68,23 @@ if st.session_state.page == "Unity Hub":
     
     st.markdown("<hr>", unsafe_allow_html=True)
     
+    # Centered Get Started Button
     st.markdown(
-        "<p style='text-align:center; font-size:16px;'>Ready to start your language adventure?</p>",
+        """
+        <div style='text-align:center; margin-bottom: 20px;'>
+        <form>
+            <button style='background-color:#1F77B4; color:white; font-size:18px; padding:10px 25px; border:none; border-radius:8px; cursor:pointer;'>
+                🎯 Get Started!
+            </button>
+        </form>
+        </div>
+        """,
         unsafe_allow_html=True
     )
+    
+    # If button clicked in Streamlit
+    if st.button("🎯 Get Started!"):
+        st.session_state.page = "Language Lab"
     
     # Animated Emoji Effect (CSS)
     st.markdown(
@@ -90,10 +103,6 @@ if st.session_state.page == "Unity Hub":
         """,
         unsafe_allow_html=True
     )
-    
-    # Get Started Button
-    if st.button("🎯 Get Started!"):
-        st.session_state.page = "Language Lab"
 
 # ------------------- LANGUAGE LAB -------------------
 elif st.session_state.page == "Language Lab":
@@ -101,16 +110,16 @@ elif st.session_state.page == "Language Lab":
     st.header("🔄 Language Lab")
     st.write("This page will let users input expressions and see translations (coming soon).")
 
-# -------------------- PHRASEBOOK --------------------
-elif st.session_state.page == "Phrasebook":
+# -------------------- TOP VOICES --------------------
+elif st.session_state.page == "Top Voices":
     show_header()
-    st.header("🏆 Phrasebook")
+    st.header("🏆 Top Voices")
     st.write("This page will display the most popular idioms and jokes (coming soon).")
 
-# ----------------------- GLOBAL MAP -------------------------
-elif st.session_state.page == "Global Map":
+# ----------------------- WORLD OF WORDS -------------------------
+elif st.session_state.page == "World of Words":
     show_header()
-    st.header("🗺️ Global Map of Idioms & Jokes")
+    st.header("🗺️ World of Words")
     st.write("Filter and explore idioms & jokes across countries!")
 
     # --- Filters ---

@@ -5,11 +5,11 @@ import pandas as pd
 # ---- APP CONFIG ----
 st.set_page_config(page_title="Unilang", page_icon="🌍", layout="wide")
 
-# ---- Initialize session state for page navigation ----
+# ---- SESSION STATE ----
 if "page" not in st.session_state:
     st.session_state.page = "Unity Hub"
 
-# ---- Sidebar Navigation ----
+# ---- SIDEBAR NAVIGATION ----
 if st.sidebar.button("Unity Hub"):
     st.session_state.page = "Unity Hub"
 if st.sidebar.button("Language Lab"):
@@ -19,15 +19,15 @@ if st.sidebar.button("Top Voices"):
 if st.sidebar.button("World of Words"):
     st.session_state.page = "World of Words"
 
-# ---- Local Images ----
-home_header = "logo.png"       # Unity Hub
-other_header = "header.jpg"    # All other pages
+# ---- LOCAL IMAGES ----
+home_header = "logo.png"
+other_header = "header.jpg"
 
-# ---- Handle HTML Button Click (Get Started) ----
-query_params = st.query_params
+# ---- HANDLE HTML BUTTON CLICK ----
+query_params = st.experimental_get_query_params()
 if query_params.get("page") == ["LanguageLab"]:
     st.session_state.page = "Language Lab"
-    st.experimental_set_query_params()  # clear query params after handling
+    st.experimental_set_query_params()  # clear query params
 
 # ---------------------- UNITY HUB ----------------------
 if st.session_state.page == "Unity Hub":
@@ -63,7 +63,7 @@ if st.session_state.page == "Unity Hub":
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
-    # Centered HTML Get Started Button
+    # ---- Fully Centered HTML Get Started Button ----
     st.markdown(
         """
         <div style='text-align:center; margin:30px 0;'>
@@ -127,60 +127,46 @@ elif st.session_state.page == "Top Voices":
     )
     st.header("🏆 Leadership Dashboard")
 
-    # Sample Leader Data
-    leaders = pd.DataFrame({
-        "Name": ["Alice", "Bob", "Charlie", "Diana", "Ethan"],
-        "Country": ["USA", "UK", "France", "Germany", "Brazil"],
-        "Contributions": [120, 95, 80, 75, 60],
-        "Top Idioms": [15, 12, 10, 8, 7],
-        "Top Jokes": [5, 7, 3, 4, 2]
-    })
+    # ----- Sample Data -----
+    users = pd.DataFrame([
+        {"user": "Alice", "country": "USA", "points": 120},
+        {"user": "Bob", "country": "Germany", "points": 150},
+        {"user": "Chloe", "country": "France", "points": 130},
+        {"user": "Diego", "country": "Brazil", "points": 170},
+        {"user": "Eiko", "country": "Japan", "points": 140}
+    ])
 
-    # Metrics
-    total_users = leaders["Name"].count()
-    total_contributions = leaders["Contributions"].sum()
-    active_today = 3
+    jokes_idioms = pd.DataFrame([
+        {"text": "Break a leg", "type": "Idiom", "country": "USA"},
+        {"text": "Pourquoi le poulet a traversé la route?", "type": "Joke", "country": "France"},
+        {"text": "Viel Glück", "type": "Idiom", "country": "Germany"},
+        {"text": "Por que a galinha atravessou a estrada?", "type": "Joke", "country": "Brazil"},
+        {"text": "頑張ってね", "type": "Idiom", "country": "Japan"}
+    ])
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Users", total_users)
-    col2.metric("Total Contributions", total_contributions)
-    col3.metric("Active Today", active_today)
+    # ----- User Leaderboard -----
+    st.subheader("🌍 Top Users by Country")
+    top_users = users.sort_values("points", ascending=False)
+    st.table(top_users)
 
-    st.markdown("---")
+    # ----- Top Jokes / Idioms -----
+    st.subheader("😂 Top Jokes & Idioms (Global)")
+    st.table(jokes_idioms)
 
-    # Leaderboard Table
-    st.subheader("Leaderboard")
-    st.dataframe(leaders.sort_values(by="Contributions", ascending=False).reset_index(drop=True))
-
-    st.markdown("---")
-
-    # Bar Chart for Contributions
-    st.subheader("Contributions per User")
-    fig_bar = go.Figure(go.Bar(
-        x=leaders["Name"],
-        y=leaders["Contributions"],
-        text=leaders["Contributions"],
-        textposition='auto',
-        marker_color='rgb(31, 119, 180)'
+    # ----- Most Humorous Country Bar Chart -----
+    st.subheader("📊 Most Humorous Country")
+    country_counts = jokes_idioms["country"].value_counts()
+    fig = go.Figure(go.Bar(
+        x=country_counts.index,
+        y=country_counts.values,
+        marker_color='orange'
     ))
-    fig_bar.update_layout(
-        xaxis_title="User",
-        yaxis_title="Contributions",
-        height=400,
-        margin=dict(t=40, b=40)
+    fig.update_layout(
+        xaxis_title="Country",
+        yaxis_title="Number of Jokes / Idioms",
+        template="plotly_white"
     )
-    st.plotly_chart(fig_bar, use_container_width=True)
-
-    # Pie Chart for Idioms vs Jokes
-    st.subheader("Top Idioms vs Top Jokes")
-    fig_pie = go.Figure(go.Pie(
-        labels=["Idioms", "Jokes"],
-        values=[leaders["Top Idioms"].sum(), leaders["Top Jokes"].sum()],
-        marker=dict(colors=["#1F77B4", "#FF7F0E"]),
-        hole=0.3
-    ))
-    fig_pie.update_layout(height=400, margin=dict(t=40, b=40))
-    st.plotly_chart(fig_pie, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
 # ----------------------- WORLD OF WORDS -------------------------
 elif st.session_state.page == "World of Words":
@@ -195,7 +181,7 @@ elif st.session_state.page == "World of Words":
     st.header("🗺️ World of Words")
     st.write("Filter and explore idioms & jokes across countries!")
 
-    # Filters
+    # --- Filters ---
     filter_col, legend_col = st.columns([2,1])
     with filter_col:
         filter_type = st.radio("Filter by Type", ["All", "Idiom", "Joke"], horizontal=True)
@@ -206,47 +192,17 @@ elif st.session_state.page == "World of Words":
             unsafe_allow_html=True
         )
 
-    # Sample Submissions
+    # --- Sample Data ---
     submissions = [
-        {
-            "input": "Break a leg",
-            "literal": "Wish you luck",
-            "type": "Idiom",
-            "countries": ["United States","United Kingdom","Germany","France"],
-            "top3": [
-                ("France","Bonne chance"),
-                ("Germany","Viel Glück"),
-                ("Spain","Buena suerte")
-            ]
-        },
-        {
-            "input": "Why did the chicken cross the road?",
-            "literal": "A classic joke",
-            "type": "Joke",
-            "countries": ["United States","Brazil","Japan"],
-            "top3": [
-                ("France","Pourquoi le poulet a traversé la route?"),
-                ("Germany","Warum ging das Huhn über die Straße?"),
-                ("Brazil","Por que a galinha atravessou a estrada?")
-            ]
-        },
+        {"input": "Break a leg", "literal": "Wish you luck", "type": "Idiom", "countries": ["USA","UK","Germany","France"], "top3": [("France","Bonne chance"),("Germany","Viel Glück"),("Spain","Buena suerte")]},
+        {"input": "Why did the chicken cross the road?", "literal": "A classic joke", "type": "Joke", "countries": ["USA","Brazil","Japan"], "top3": [("France","Pourquoi le poulet a traversé la route?"),("Germany","Warum ging das Huhn über die Straße?"),("Brazil","Por que a galinha atravessou a estrada?")]}
     ]
 
-    country_coords = {
-        "United States":[38,-97],
-        "United Kingdom":[54,-2],
-        "France":[46,2],
-        "Germany":[51,10],
-        "Spain":[40,-4],
-        "Brazil":[-10,-55],
-        "Japan":[36,138]
-    }
+    country_coords = {"USA":[38,-97],"UK":[54,-2],"France":[46,2],"Germany":[51,10],"Spain":[40,-4],"Brazil":[-10,-55],"Japan":[36,138]}
 
-    # Filter logic
     filtered_subs = [sub for sub in submissions if filter_type=="All" or sub["type"]==filter_type]
 
     lats, lons, colors, texts = [], [], [], []
-
     for sub in filtered_subs:
         for country in sub["countries"]:
             if country in country_coords:
@@ -254,16 +210,10 @@ elif st.session_state.page == "World of Words":
                 lats.append(lat)
                 lons.append(lon)
                 colors.append("blue" if sub["type"]=="Idiom" else "orange")
-
                 top3_bullets = "<br>   - " + "<br>   - ".join([f"{c}: {expr}" for c, expr in sub["top3"]])
-                hover_text = (
-                    f"<b>{sub['input']}</b><br>"
-                    f"• Literal: {sub['literal']}<br>"
-                    f"• Similar: {top3_bullets}"
-                )
+                hover_text = f"<b>{sub['input']}</b><br>• Literal: {sub['literal']}<br>• Similar: {top3_bullets}"
                 texts.append(hover_text)
 
-    # Map
     fig = go.Figure(go.Scattergeo(
         lon=lons,
         lat=lats,
@@ -274,13 +224,7 @@ elif st.session_state.page == "World of Words":
     ))
 
     fig.update_layout(
-        geo=dict(
-            showland=True,
-            landcolor="rgb(200,230,201)",
-            showcountries=True,
-            countrycolor="rgb(100,100,100)",
-            projection_type='natural earth'
-        ),
+        geo=dict(showland=True, landcolor="rgb(200,230,201)", showcountries=True, countrycolor="rgb(100,100,100)", projection_type='natural earth'),
         margin={"r":0,"t":0,"l":0,"b":0},
         height=1000
     )

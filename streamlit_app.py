@@ -55,31 +55,11 @@ if st.session_state.page == "Unity Hub":
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
-    # ---- Fully centered HTML Get Started button ----
-    st.markdown(
-        """
-        <div style='text-align:center; margin:30px 0;'>
-            <form action="">
-                <input type="submit" value="🎯 Get Started!" 
-                style="
-                    background-color:#1F77B4; 
-                    color:white; 
-                    font-size:24px; 
-                    padding:15px 40px; 
-                    border:none; 
-                    border-radius:12px; 
-                    cursor:pointer;
-                ">
-            </form>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # ---- Check if button is clicked ----
-    # Streamlit can't directly detect HTML button click, so we'll use session_state fallback
-    if st.experimental_get_query_params().get("page", [""])[0] == "LanguageLab":
-        st.session_state.page = "Language Lab"
+    # ---- Centered Get Started Button ----
+    col1, col2, col3 = st.columns([1,2,1])
+    with col2:
+        if st.button("🎯 Get Started!", key="start_btn"):
+            st.session_state.page = "Language Lab"
 
     # Animated Emoji Effect (CSS)
     st.markdown(
@@ -101,6 +81,7 @@ if st.session_state.page == "Unity Hub":
 
 # ------------------- LANGUAGE LAB -------------------
 elif st.session_state.page == "Language Lab":
+    # Centered Header Image
     st.markdown(
         f"""
         <div style='text-align:center; margin-bottom:20px;'>

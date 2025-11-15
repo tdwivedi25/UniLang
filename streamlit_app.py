@@ -24,20 +24,20 @@ other_header = "header.jpg"    # 🟩 All other pages
 
 # ---------------------- UNITY HUB ----------------------
 if st.session_state.page == "Unity Hub":
-    # Display logo
-    st.image(home_header, width=180)
+    # Display larger logo
+    st.image(home_header, width=300)
 
     st.markdown(
         """
-        <h1 style='text-align: center; color: #1F77B4;'>Welcome to <b>Unilang</b>! 🌍</h1>
-        <h3 style='text-align: center; color: #FF7F0E;'>Where languages and cultures unite!</h3>
+        <h1 style='text-align: center; color: #1F77B4; font-size: 60px;'>Welcome to <b>Unilang</b>! 🌍</h1>
+        <h3 style='text-align: center; color: #FF7F0E; font-size: 28px;'>Where languages and cultures unite!</h3>
         """,
         unsafe_allow_html=True
     )
 
     st.markdown(
         """
-        <div style='text-align:center; font-size:18px; line-height:1.8;'>
+        <div style='text-align:center; font-size:20px; line-height:1.8;'>
         🚀 <b>Explore idioms and jokes from around the world</b><br>
         🗣️ <b>Learn how expressions are translated in different languages</b><br>
         🌟 <b>Discover the most popular phrases and share your favorites</b>
@@ -48,8 +48,8 @@ if st.session_state.page == "Unity Hub":
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
-    # Centered Get Started Button using Streamlit
-    if st.button("🎯 Get Started!"):
+    # Centered Get Started Button (Streamlit only)
+    if st.button("🎯 Get Started!", key="get_started"):
         st.session_state.page = "Language Lab"
 
     # Animated Emoji Effect (CSS)
@@ -65,26 +65,26 @@ if st.session_state.page == "Unity Hub":
             animation: bounce 1s infinite;
         }
         </style>
-        <p style='text-align:center; font-size:30px;'><span class='bounce'>🌐✨🎉</span></p>
+        <p style='text-align:center; font-size:40px;'><span class='bounce'>🌐✨🎉</span></p>
         """,
         unsafe_allow_html=True
     )
 
 # ------------------- LANGUAGE LAB -------------------
 elif st.session_state.page == "Language Lab":
-    st.image(other_header, width=450)
+    st.image(other_header, width=600)
     st.header("🔄 Language Lab")
     st.write("This page will let users input expressions and see translations (coming soon).")
 
 # -------------------- TOP VOICES --------------------
 elif st.session_state.page == "Top Voices":
-    st.image(other_header, width=450)
+    st.image(other_header, width=600)
     st.header("🏆 Top Voices")
     st.write("This page will display the most popular idioms and jokes (coming soon).")
 
 # ----------------------- WORLD OF WORDS -------------------------
 elif st.session_state.page == "World of Words":
-    st.image(other_header, width=450)
+    st.image(other_header, width=600)
     st.header("🗺️ World of Words")
     st.write("Filter and explore idioms & jokes across countries!")
 

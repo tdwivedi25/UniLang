@@ -1,6 +1,7 @@
 import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
+import random
 
 # ---- APP CONFIG ----
 st.set_page_config(page_title="Unilang", page_icon="🌍", layout="wide")
@@ -31,71 +32,44 @@ if query_params.get("page") == ["LanguageLab"]:
 
 # ---------------------- UNITY HUB ----------------------
 if st.session_state.page == "Unity Hub":
-    # Centered Logo
     st.markdown(
-        f"""
-        <div style='text-align:center; margin-bottom:30px;'>
-            <img src="{home_header}" style="width:300px;">
-        </div>
-        """,
+        f"<div style='text-align:center; margin-bottom:30px;'><img src='{home_header}' style='width:300px;'></div>",
         unsafe_allow_html=True
     )
-
-    # Welcome Text
     st.markdown(
         """
-        <h1 style='text-align: center; color: #1F77B4; font-size: 60px;'>Welcome to <b>Unilang</b>! 🌍</h1>
-        <h3 style='text-align: center; color: #FF7F0E; font-size: 28px;'>Where languages and cultures unite!</h3>
+        <h1 style='text-align:center; color:#1F77B4; font-size:60px;'>Welcome to <b>Unilang</b>! 🌍</h1>
+        <h3 style='text-align:center; color:#FF7F0E; font-size:28px;'>Where languages and cultures unite!</h3>
         """,
         unsafe_allow_html=True
     )
-
     st.markdown(
-        """
-        <div style='text-align:center; font-size:20px; line-height:1.8; margin-bottom:20px;'>
-        🚀 <b>Explore idioms and jokes from around the world</b><br>
-        🗣️ <b>Learn how expressions are translated in different languages</b><br>
-        🌟 <b>Discover the most popular phrases and share your favorites</b>
-        </div>
-        """,
+        "<div style='text-align:center; font-size:20px; line-height:1.8; margin-bottom:20px;'>"
+        "🚀 <b>Explore idioms and jokes from around the world</b><br>"
+        "🗣️ <b>Learn how expressions are translated in different languages</b><br>"
+        "🌟 <b>Discover the most popular phrases and share your favorites</b>"
+        "</div>",
         unsafe_allow_html=True
     )
-
     st.markdown("<hr>", unsafe_allow_html=True)
 
-    # ---- Fully Centered HTML Get Started Button ----
     st.markdown(
         """
         <div style='text-align:center; margin:30px 0;'>
             <form action="?page=LanguageLab">
                 <input type="submit" value="🎯 Get Started!" 
-                style="
-                    background-color:#1F77B4; 
-                    color:white; 
-                    font-size:24px; 
-                    padding:15px 40px; 
-                    border:none; 
-                    border-radius:12px; 
-                    cursor:pointer;
-                ">
+                style="background-color:#1F77B4; color:white; font-size:24px; padding:15px 40px; border:none; border-radius:12px; cursor:pointer;">
             </form>
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    # Animated Emoji
     st.markdown(
         """
         <style>
-        @keyframes bounce {
-            0%, 100% {transform: translateY(0);}
-            50% {transform: translateY(-10px);}
-        }
-        .bounce {
-            display: inline-block;
-            animation: bounce 1s infinite;
-        }
+        @keyframes bounce {0%, 100% {transform: translateY(0);} 50% {transform: translateY(-10px);}}
+        .bounce {display:inline-block; animation:bounce 1s infinite;}
         </style>
         <p style='text-align:center; font-size:40px;'><span class='bounce'>🌐✨🎉</span></p>
         """,
@@ -104,27 +78,13 @@ if st.session_state.page == "Unity Hub":
 
 # ------------------- LANGUAGE LAB -------------------
 elif st.session_state.page == "Language Lab":
-    st.markdown(
-        f"""
-        <div style='text-align:center; margin-bottom:20px;'>
-            <img src="{other_header}" style="width:600px;">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown(f"<div style='text-align:center; margin-bottom:20px;'><img src='{other_header}' style='width:600px;'></div>", unsafe_allow_html=True)
     st.header("🔄 Language Lab")
     st.write("This page will let users input expressions and see translations (coming soon).")
 
 # -------------------- TOP VOICES / LEADERSHIP DASHBOARD --------------------
 elif st.session_state.page == "Top Voices":
-    st.markdown(
-        f"""
-        <div style='text-align:center; margin-bottom:20px;'>
-            <img src="{other_header}" style="width:600px;">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown(f"<div style='text-align:center; margin-bottom:20px;'><img src='{other_header}' style='width:600px;'></div>", unsafe_allow_html=True)
     st.header("🏆 Leadership Dashboard")
 
     # ----- Sample Data -----
@@ -141,7 +101,8 @@ elif st.session_state.page == "Top Voices":
         {"text": "Pourquoi le poulet a traversé la route?", "type": "Joke", "country": "France"},
         {"text": "Viel Glück", "type": "Idiom", "country": "Germany"},
         {"text": "Por que a galinha atravessou a estrada?", "type": "Joke", "country": "Brazil"},
-        {"text": "頑張ってね", "type": "Idiom", "country": "Japan"}
+        {"text": "頑張ってね", "type": "Idiom", "country": "Japan"},
+        {"text": "笑ってね", "type": "Joke", "country": "Japan"}
     ])
 
     # ----- User Leaderboard -----
@@ -155,29 +116,26 @@ elif st.session_state.page == "Top Voices":
 
     # ----- Most Humorous Country Bar Chart -----
     st.subheader("📊 Most Humorous Country")
-    country_counts = jokes_idioms["country"].value_counts()
+    humor_scores = jokes_idioms["country"].value_counts().to_dict()
+    # Add random variation for visual effect
+    humor_scores_varied = {k: v + random.randint(0,3) for k,v in humor_scores.items()}
     fig = go.Figure(go.Bar(
-        x=country_counts.index,
-        y=country_counts.values,
-        marker_color='orange'
+        x=list(humor_scores_varied.keys()),
+        y=list(humor_scores_varied.values()),
+        marker_color=['#FF7F0E','#1F77B4','#2CA02C','#D62728','#9467BD'],
+        text=list(humor_scores_varied.values()),
+        textposition='auto'
     ))
     fig.update_layout(
         xaxis_title="Country",
-        yaxis_title="Number of Jokes / Idioms",
+        yaxis_title="Humor Score",
         template="plotly_white"
     )
     st.plotly_chart(fig, use_container_width=True)
 
 # ----------------------- WORLD OF WORDS -------------------------
 elif st.session_state.page == "World of Words":
-    st.markdown(
-        f"""
-        <div style='text-align:center; margin-bottom:20px;'>
-            <img src="{other_header}" style="width:600px;">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown(f"<div style='text-align:center; margin-bottom:20px;'><img src='{other_header}' style='width:600px;'></div>", unsafe_allow_html=True)
     st.header("🗺️ World of Words")
     st.write("Filter and explore idioms & jokes across countries!")
 
@@ -186,13 +144,8 @@ elif st.session_state.page == "World of Words":
     with filter_col:
         filter_type = st.radio("Filter by Type", ["All", "Idiom", "Joke"], horizontal=True)
     with legend_col:
-        st.markdown(
-            "<p style='margin:0;'><span style='color:blue;'>● Idiom</span> &nbsp;&nbsp; "
-            "<span style='color:orange;'>● Joke</span></p>",
-            unsafe_allow_html=True
-        )
+        st.markdown("<p style='margin:0;'><span style='color:blue;'>● Idiom</span> &nbsp;&nbsp; <span style='color:orange;'>● Joke</span></p>", unsafe_allow_html=True)
 
-    # --- Sample Data ---
     submissions = [
         {"input": "Break a leg", "literal": "Wish you luck", "type": "Idiom", "countries": ["USA","UK","Germany","France"], "top3": [("France","Bonne chance"),("Germany","Viel Glück"),("Spain","Buena suerte")]},
         {"input": "Why did the chicken cross the road?", "literal": "A classic joke", "type": "Joke", "countries": ["USA","Brazil","Japan"], "top3": [("France","Pourquoi le poulet a traversé la route?"),("Germany","Warum ging das Huhn über die Straße?"),("Brazil","Por que a galinha atravessou a estrada?")]}
@@ -215,10 +168,7 @@ elif st.session_state.page == "World of Words":
                 texts.append(hover_text)
 
     fig = go.Figure(go.Scattergeo(
-        lon=lons,
-        lat=lats,
-        text=texts,
-        mode='markers',
+        lon=lons, lat=lats, text=texts, mode='markers',
         marker=dict(size=35, color=colors, line=dict(width=1, color='black')),
         hoverinfo='text'
     ))

@@ -5,13 +5,13 @@ import random
 # ---- APP CONFIG ----
 st.set_page_config(page_title="Unilang", page_icon="🌍", layout="wide")
 
-# ---- SESSION STATE ----
+# ---- Initialize session state ----
 if "page" not in st.session_state:
     st.session_state.page = "Unity Hub"
 if "map_points" not in st.session_state:
-    st.session_state.map_points = []  # For map & leaderboard
+    st.session_state.map_points = []
 if "submissions" not in st.session_state:
-    st.session_state.submissions = []  # For top expressions
+    st.session_state.submissions = []
 
 # ---- Sidebar Navigation ----
 if st.sidebar.button("Unity Hub"): st.session_state.page = "Unity Hub"
@@ -23,7 +23,7 @@ if st.sidebar.button("World of Words"): st.session_state.page = "World of Words"
 HOME_LOGO = "logo.png"
 OTHER_HEADER = "header.jpg"
 
-# ---- Sample translations & coordinates ----
+# ---- Sample translations and data ----
 mock_translations = {
     "Break a leg": {"France":"Bonne chance","Germany":"Viel Glück","Spain":"Buena suerte"},
     "Why did the chicken cross the road?":{"France":"Pourquoi le poulet a traversé la route?","Germany":"Warum ging das Huhn über die Straße?","Spain":"Por qué cruzó el pollo la calle?"},
@@ -31,15 +31,27 @@ mock_translations = {
 }
 
 country_coords = {
-    "United States":[38,-97], "United Kingdom":[54,-2], "France":[46,2],
-    "Germany":[51,10], "Spain":[40,-4], "Brazil":[-10,-55], "Japan":[36,138]
+    "United States":[38,-97],
+    "United Kingdom":[54,-2],
+    "France":[46,2],
+    "Germany":[51,10],
+    "Spain":[40,-4],
+    "Brazil":[-10,-55],
+    "Japan":[36,138]
 }
 
 # ---- Helper to add submission ----
 def add_submission(text, typ):
-    submission = {"input": text, "type": typ, "countries": list(country_coords.keys())}
-    st.session_state.submissions.append(submission)
-    st.session_state.map_points.append(submission)
+    st.session_state.submissions.append({
+        "input": text,
+        "type": typ,
+        "countries": list(country_coords.keys())
+    })
+    st.session_state.map_points.append({
+        "input": text,
+        "type": typ,
+        "countries": list(country_coords.keys())
+    })
 
 # ---------------- UNITY HUB ----------------
 if st.session_state.page == "Unity Hub":
@@ -50,7 +62,7 @@ if st.session_state.page == "Unity Hub":
     st.markdown("<hr>", unsafe_allow_html=True)
 
     # Centered Get Started Button
-    col1, col2, col3 = st.columns([1,2,1])
+    col1,col2,col3 = st.columns([1,2,1])
     with col2:
         if st.button("🎯 Get Started!"):
             st.session_state.page = "Language Lab"
@@ -79,28 +91,23 @@ elif st.session_state.page == "Language Lab":
         target_lang = st.selectbox("Translate to", ["France","Germany","Spain"])
 
     if st.button("Translate!"):
-        if not user_text.strip():
+        if user_text.strip() == "":
             st.warning("Please enter some text!")
         else:
-            # Translation with safe fallback
-            translation_dict = mock_translations.get(user_text.strip())
-            if translation_dict and target_lang in translation_dict:
-                translation = translation_dict[target_lang]
-            else:
-                translation = "Translation not available"
-
+            # Get translation: real if exists, else pseudo-translation
+            translation = mock_translations.get(user_text, {}).get(target_lang, "".join(random.sample(user_text, len(user_text))))
             st.markdown(f"**Translation in {target_lang}:** {translation}")
 
-            # Unity Meter (random for demo)
+            # Unity Meter (randomized for demo)
             unity_percent = random.randint(60,100)
             st.progress(unity_percent)
             st.markdown(f"**Unity Meter:** {unity_percent}% resemblance")
 
-            # Top 3 countries (random)
+            # Top 3 countries
             top3 = random.sample(list(country_coords.keys()),3)
             st.markdown(f"**Top 3 countries with similar expression:** {', '.join(top3)}")
 
-            # Add submission to map & leaderboard
+            # Add to map & submissions
             add_submission(user_text, choice_type)
 
 # ---------------- WORLD OF WORDS ----------------
@@ -116,7 +123,7 @@ elif st.session_state.page == "World of Words":
     with legend_col:
         st.markdown("<p style='margin:0;'><span style='color:blue;'>● Idiom</span> &nbsp;&nbsp;<span style='color:orange;'>● Joke</span></p>", unsafe_allow_html=True)
 
-    # Prepare map
+    # Map
     lats,lons,colors,texts=[],[],[],[]
     for sub in st.session_state.map_points:
         if filter_type=="All" or sub["type"]==filter_type:
@@ -126,7 +133,7 @@ elif st.session_state.page == "World of Words":
                     lats.append(lat)
                     lons.append(lon)
                     colors.append("blue" if sub["type"]=="Idiom" else "orange")
-                    texts.append(f"{sub['input']} ({sub['type']})")
+                    texts.append(f"{sub.get('input','Unknown')} ({sub.get('type','Unknown')})")
 
     fig = go.Figure(go.Scattergeo(
         lon=lons, lat=lats, text=texts, mode='markers',
@@ -138,27 +145,27 @@ elif st.session_state.page == "World of Words":
     )
     st.plotly_chart(fig, use_container_width=True)
 
-# ---------------- TOP VOICES / LEADERSHIP DASHBOARD ----------------
+# ---------------- TOP VOICES ----------------
 elif st.session_state.page == "Top Voices":
     st.image(OTHER_HEADER, width=600)
     st.header("🏆 Leadership Dashboard")
 
     # Top expressions
     st.subheader("🌟 Top Expressions")
-    all_texts = [s["input"] for s in st.session_state.submissions]
-    top_texts = {text:all_texts.count(text) for text in all_texts}
-    top_sorted = sorted(top_texts.items(), key=lambda x: x[1], reverse=True)
+    all_texts = [s.get("input","") for s in st.session_state.submissions]
+    top_texts = {text:all_texts.count(text) for text in all_texts if text}
+    top_sorted = sorted(top_texts.items(), key=lambda x:x[1], reverse=True)
     for text,count in top_sorted[:5]:
         st.markdown(f"- {text} ({count} submissions)")
 
     # Most humorous countries
     country_counts = {c:0 for c in country_coords.keys()}
     for sub in st.session_state.submissions:
-        for c in sub["countries"]:
+        for c in sub.get("countries",[]):
             country_counts[c]+=1
     countries = list(country_counts.keys())
-    counts = [country_counts[c]+random.randint(0,5) for c in countries]  # varied bar heights
+    counts = [country_counts[c]+random.randint(0,5) for c in countries]
     st.subheader("😂 Most Humorous Countries")
-    fig_bar = go.Figure([go.Bar(x=countries, y=counts, marker_color='orange')])
+    fig_bar = go.Figure([go.Bar(x=countries,y=counts,marker_color='orange')])
     fig_bar.update_layout(yaxis_title="Submissions", xaxis_title="Country", height=400)
     st.plotly_chart(fig_bar, use_container_width=True)

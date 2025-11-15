@@ -22,31 +22,11 @@ if st.sidebar.button("World of Words"):
 home_header = "logo.png"       # 🟦 Unity Hub
 other_header = "header.jpg"    # 🟩 All other pages
 
-# ---- IMAGE RENDER FUNCTIONS ----
-def show_logo():
-    st.markdown(
-        """
-        <div style='display: flex; justify-content: center; margin-bottom: 20px;'>
-            <img src='logo.png' style='width: 180px;'>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-def show_header():
-    st.markdown(
-        """
-        <div style='display: flex; justify-content: center; margin-bottom: 20px;'>
-            <img src='header.jpg' style='width: 450px; border-radius: 20px;'>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
 # ---------------------- UNITY HUB ----------------------
 if st.session_state.page == "Unity Hub":
-    show_logo()
-    
+    # Display logo
+    st.image(home_header, width=180)
+
     st.markdown(
         """
         <h1 style='text-align: center; color: #1F77B4;'>Welcome to <b>Unilang</b>! 🌍</h1>
@@ -54,7 +34,7 @@ if st.session_state.page == "Unity Hub":
         """,
         unsafe_allow_html=True
     )
-    
+
     st.markdown(
         """
         <div style='text-align:center; font-size:18px; line-height:1.8;'>
@@ -65,27 +45,13 @@ if st.session_state.page == "Unity Hub":
         """,
         unsafe_allow_html=True
     )
-    
+
     st.markdown("<hr>", unsafe_allow_html=True)
-    
-    # Centered Get Started Button
-    st.markdown(
-        """
-        <div style='text-align:center; margin-bottom: 20px;'>
-        <form>
-            <button style='background-color:#1F77B4; color:white; font-size:18px; padding:10px 25px; border:none; border-radius:8px; cursor:pointer;'>
-                🎯 Get Started!
-            </button>
-        </form>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    
-    # If button clicked in Streamlit
+
+    # Centered Get Started Button using Streamlit
     if st.button("🎯 Get Started!"):
         st.session_state.page = "Language Lab"
-    
+
     # Animated Emoji Effect (CSS)
     st.markdown(
         """
@@ -106,19 +72,19 @@ if st.session_state.page == "Unity Hub":
 
 # ------------------- LANGUAGE LAB -------------------
 elif st.session_state.page == "Language Lab":
-    show_header()
+    st.image(other_header, width=450)
     st.header("🔄 Language Lab")
     st.write("This page will let users input expressions and see translations (coming soon).")
 
 # -------------------- TOP VOICES --------------------
 elif st.session_state.page == "Top Voices":
-    show_header()
+    st.image(other_header, width=450)
     st.header("🏆 Top Voices")
     st.write("This page will display the most popular idioms and jokes (coming soon).")
 
 # ----------------------- WORLD OF WORDS -------------------------
 elif st.session_state.page == "World of Words":
-    show_header()
+    st.image(other_header, width=450)
     st.header("🗺️ World of Words")
     st.write("Filter and explore idioms & jokes across countries!")
 
@@ -206,13 +172,3 @@ elif st.session_state.page == "World of Words":
     fig.update_layout(
         geo=dict(
             showland=True,
-            landcolor="rgb(200,230,201)",
-            showcountries=True,
-            countrycolor="rgb(100,100,100)",
-            projection_type='natural earth'
-        ),
-        margin={"r":0,"t":0,"l":0,"b":0},
-        height=1000
-    )
-
-    st.plotly_chart(fig, use_container_width=True)

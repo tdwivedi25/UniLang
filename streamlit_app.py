@@ -1,5 +1,6 @@
 import streamlit as st
 import plotly.graph_objects as go
+import pandas as pd
 
 # ---- APP CONFIG ----
 st.set_page_config(page_title="Unilang", page_icon="🌍", layout="wide")
@@ -18,15 +19,15 @@ if st.sidebar.button("Top Voices"):
 if st.sidebar.button("World of Words"):
     st.session_state.page = "World of Words"
 
-# ---- LOCAL IMAGES ----
-home_header = "logo.png"       # 🟦 Unity Hub
-other_header = "header.jpg"    # 🟩 All other pages
+# ---- Local Images ----
+home_header = "logo.png"       # Unity Hub
+other_header = "header.jpg"    # All other pages
 
-# ---- HANDLE HTML BUTTON CLICK ----
+# ---- Handle HTML Button Click (Get Started) ----
 query_params = st.query_params
-if query_params.get("page") == "LanguageLab":
+if query_params.get("page") == ["LanguageLab"]:
     st.session_state.page = "Language Lab"
-    st.query_params.clear()  # Clear query params after handling
+    st.experimental_set_query_params()  # clear query params after handling
 
 # ---------------------- UNITY HUB ----------------------
 if st.session_state.page == "Unity Hub":
@@ -62,7 +63,7 @@ if st.session_state.page == "Unity Hub":
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
-    # ---- Fully Centered HTML Get Started Button ----
+    # Centered HTML Get Started Button
     st.markdown(
         """
         <div style='text-align:center; margin:30px 0;'>
@@ -114,7 +115,7 @@ elif st.session_state.page == "Language Lab":
     st.header("🔄 Language Lab")
     st.write("This page will let users input expressions and see translations (coming soon).")
 
-# -------------------- TOP VOICES --------------------
+# -------------------- TOP VOICES / LEADERSHIP DASHBOARD --------------------
 elif st.session_state.page == "Top Voices":
     st.markdown(
         f"""
@@ -124,8 +125,62 @@ elif st.session_state.page == "Top Voices":
         """,
         unsafe_allow_html=True
     )
-    st.header("🏆 Top Voices")
-    st.write("This page will display the most popular idioms and jokes (coming soon).")
+    st.header("🏆 Leadership Dashboard")
+
+    # Sample Leader Data
+    leaders = pd.DataFrame({
+        "Name": ["Alice", "Bob", "Charlie", "Diana", "Ethan"],
+        "Country": ["USA", "UK", "France", "Germany", "Brazil"],
+        "Contributions": [120, 95, 80, 75, 60],
+        "Top Idioms": [15, 12, 10, 8, 7],
+        "Top Jokes": [5, 7, 3, 4, 2]
+    })
+
+    # Metrics
+    total_users = leaders["Name"].count()
+    total_contributions = leaders["Contributions"].sum()
+    active_today = 3
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total Users", total_users)
+    col2.metric("Total Contributions", total_contributions)
+    col3.metric("Active Today", active_today)
+
+    st.markdown("---")
+
+    # Leaderboard Table
+    st.subheader("Leaderboard")
+    st.dataframe(leaders.sort_values(by="Contributions", ascending=False).reset_index(drop=True))
+
+    st.markdown("---")
+
+    # Bar Chart for Contributions
+    st.subheader("Contributions per User")
+    fig_bar = go.Figure(go.Bar(
+        x=leaders["Name"],
+        y=leaders["Contributions"],
+        text=leaders["Contributions"],
+        textposition='auto',
+        marker_color='rgb(31, 119, 180)'
+    ))
+    fig_bar.update_layout(
+        xaxis_title="User",
+        yaxis_title="Contributions",
+        height=400,
+        margin=dict(t=40, b=40)
+    )
+    st.plotly_chart(fig_bar, use_container_width=True)
+
+    # Pie Chart for Idioms vs Jokes
+    st.subheader("Top Idioms vs Top Jokes")
+    fig_pie = go.Figure(go.Pie(
+        labels=["Idioms", "Jokes"],
+        values=[leaders["Top Idioms"].sum(), leaders["Top Jokes"].sum()],
+        marker=dict(colors=["#1F77B4", "#FF7F0E"]),
+        hole=0.3
+    ))
+    fig_pie.update_layout(height=400, margin=dict(t=40, b=40))
+    st.plotly_chart(fig_pie, use_container_width=True)
 
 # ----------------------- WORLD OF WORDS -------------------------
 elif st.session_state.page == "World of Words":
@@ -140,7 +195,7 @@ elif st.session_state.page == "World of Words":
     st.header("🗺️ World of Words")
     st.write("Filter and explore idioms & jokes across countries!")
 
-    # --- Filters ---
+    # Filters
     filter_col, legend_col = st.columns([2,1])
     with filter_col:
         filter_type = st.radio("Filter by Type", ["All", "Idiom", "Joke"], horizontal=True)
@@ -151,7 +206,7 @@ elif st.session_state.page == "World of Words":
             unsafe_allow_html=True
         )
 
-    # --- Sample Data ---
+    # Sample Submissions
     submissions = [
         {
             "input": "Break a leg",
@@ -187,11 +242,8 @@ elif st.session_state.page == "World of Words":
         "Japan":[36,138]
     }
 
-    # --- Filter logic ---
-    filtered_subs = [
-        sub for sub in submissions
-        if filter_type=="All" or sub["type"]==filter_type
-    ]
+    # Filter logic
+    filtered_subs = [sub for sub in submissions if filter_type=="All" or sub["type"]==filter_type]
 
     lats, lons, colors, texts = [], [], [], []
 
@@ -204,7 +256,6 @@ elif st.session_state.page == "World of Words":
                 colors.append("blue" if sub["type"]=="Idiom" else "orange")
 
                 top3_bullets = "<br>   - " + "<br>   - ".join([f"{c}: {expr}" for c, expr in sub["top3"]])
-
                 hover_text = (
                     f"<b>{sub['input']}</b><br>"
                     f"• Literal: {sub['literal']}<br>"
@@ -212,6 +263,7 @@ elif st.session_state.page == "World of Words":
                 )
                 texts.append(hover_text)
 
+    # Map
     fig = go.Figure(go.Scattergeo(
         lon=lons,
         lat=lats,

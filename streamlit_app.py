@@ -172,3 +172,13 @@ elif st.session_state.page == "World of Words":
     fig.update_layout(
         geo=dict(
             showland=True,
+            landcolor="rgb(200,230,201)",
+            showcountries=True,
+            countrycolor="rgb(100,100,100)",
+            projection_type='natural earth'
+        ),
+        margin={"r":0,"t":0,"l":0,"b":0},
+        height=1000
+    )
+
+    st.plotly_chart(fig, use_container_width=True)

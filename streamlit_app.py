@@ -11,28 +11,28 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- Sidebar navigation ---
-page = st.sidebar.selectbox("Navigation", ["Home", "Translation", "Leaderboard", "Map"])
+# --- Top tabs navigation ---
+tab1, tab2, tab3, tab4 = st.tabs(["Home", "Translation", "Leaderboard", "Map"])
 
-# --- Home Page ---
-if page == "Home":
+# --- Home tab ---
+with tab1:
     st.image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfd5j0K8WAz8so_1o2VVLWW8uZ77kwzr_8kg&s", use_column_width=True)
     st.markdown("<h1 style='text-align:center;'>🌍 Welcome to Unilang</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align:center;'>Unity through language — explore idioms and jokes across the world!</p>", unsafe_allow_html=True)
-    st.write("Use the sidebar to go to the translation page, leaderboard, or explore the global map of idioms and jokes.")
+    st.write("Use the tabs above to explore translations, leaderboard, or the world map of idioms and jokes.")
 
-# --- Translation Page (blank) ---
-elif page == "Translation":
+# --- Translation tab (blank) ---
+with tab2:
     st.markdown("<h2>Translation Page (coming soon)</h2>", unsafe_allow_html=True)
     st.write("Here users will be able to input expressions and see translations.")
 
-# --- Leaderboard Page (blank) ---
-elif page == "Leaderboard":
+# --- Leaderboard tab (blank) ---
+with tab3:
     st.markdown("<h2>Leaderboard Page (coming soon)</h2>", unsafe_allow_html=True)
     st.write("This page will show the most popular idioms and jokes.")
 
-# --- Map Page ---
-elif page == "Map":
+# --- Map tab ---
+with tab4:
     # --- Header image ---
     st.image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfd5j0K8WAz8so_1o2VVLWW8uZ77kwzr_8kg&s", use_column_width=True)
     st.markdown("<h1 style='text-align:center; margin-bottom:0;'>🌍 Unilang - World Map</h1>", unsafe_allow_html=True)

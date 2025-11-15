@@ -24,8 +24,15 @@ other_header = "header.jpg"    # 🟩 All other pages
 
 # ---------------------- UNITY HUB ----------------------
 if st.session_state.page == "Unity Hub":
-    # Display larger logo
-    st.image(home_header, width=300)
+    # Centered Logo
+    st.markdown(
+        f"""
+        <div style='text-align:center; margin-bottom:30px;'>
+            <img src="{home_header}" style="width:300px;">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     st.markdown(
         """
@@ -37,7 +44,7 @@ if st.session_state.page == "Unity Hub":
 
     st.markdown(
         """
-        <div style='text-align:center; font-size:20px; line-height:1.8;'>
+        <div style='text-align:center; font-size:20px; line-height:1.8; margin-bottom:20px;'>
         🚀 <b>Explore idioms and jokes from around the world</b><br>
         🗣️ <b>Learn how expressions are translated in different languages</b><br>
         🌟 <b>Discover the most popular phrases and share your favorites</b>
@@ -48,7 +55,7 @@ if st.session_state.page == "Unity Hub":
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
-    # Centered Get Started Button (Streamlit only)
+    # Centered Get Started Button
     if st.button("🎯 Get Started!", key="get_started"):
         st.session_state.page = "Language Lab"
 
@@ -72,19 +79,40 @@ if st.session_state.page == "Unity Hub":
 
 # ------------------- LANGUAGE LAB -------------------
 elif st.session_state.page == "Language Lab":
-    st.image(other_header, width=600)
+    st.markdown(
+        f"""
+        <div style='text-align:center; margin-bottom:20px;'>
+            <img src="{other_header}" style="width:600px;">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     st.header("🔄 Language Lab")
     st.write("This page will let users input expressions and see translations (coming soon).")
 
 # -------------------- TOP VOICES --------------------
 elif st.session_state.page == "Top Voices":
-    st.image(other_header, width=600)
+    st.markdown(
+        f"""
+        <div style='text-align:center; margin-bottom:20px;'>
+            <img src="{other_header}" style="width:600px;">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     st.header("🏆 Top Voices")
     st.write("This page will display the most popular idioms and jokes (coming soon).")
 
 # ----------------------- WORLD OF WORDS -------------------------
 elif st.session_state.page == "World of Words":
-    st.image(other_header, width=600)
+    st.markdown(
+        f"""
+        <div style='text-align:center; margin-bottom:20px;'>
+            <img src="{other_header}" style="width:600px;">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     st.header("🗺️ World of Words")
     st.write("Filter and explore idioms & jokes across countries!")
 

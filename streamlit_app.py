@@ -1,42 +1,51 @@
 import streamlit as st
 import plotly.graph_objects as go
 
-# --- Remove default Streamlit padding/margins ---
-st.markdown("""
-    <style>
-        .css-18e3th9 {padding-top: 0rem;}
-        .css-1d391kg {padding-top: 0rem;}
-        .css-1v3fvcr {padding-bottom: 0rem;}
-        .block-container {padding-top:0rem; padding-bottom:0rem;}
-    </style>
-""", unsafe_allow_html=True)
+# ---- APP CONFIG ----
+st.set_page_config(page_title="Unilang", page_icon="🌍", layout="centered")
 
-# --- Top tabs navigation ---
-tab1, tab2, tab3, tab4 = st.tabs(["Home", "Translation", "Leaderboard", "Map"])
+# ---- HEADER ----
+st.image(
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfd5j0K8WAz8so_1o2VVLWW8uZ77kwzr_8kg&s",
+    use_column_width=True,
+)
+st.title("🌍 Unilang")
+st.subheader("Unity through language — explore idioms and jokes across the world!")
+st.write("Welcome! Select what you want to do below.")
 
-# --- Home tab ---
-with tab1:
-    st.image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfd5j0K8WAz8so_1o2VVLWW8uZ77kwzr_8kg&s", use_column_width=True)
-    st.markdown("<h1 style='text-align:center;'>🌍 Welcome to Unilang</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center;'>Unity through language — explore idioms and jokes across the world!</p>", unsafe_allow_html=True)
-    st.write("Use the tabs above to explore translations, leaderboard, or the world map of idioms and jokes.")
+# ---- SIDEBAR ----
+st.sidebar.title("Navigation")
+page = st.sidebar.radio("Go to:", ["Home", "Translation", "Leaderboard", "Map"])
 
-# --- Translation tab (blank) ---
-with tab2:
-    st.markdown("<h2>Translation Page (coming soon)</h2>", unsafe_allow_html=True)
-    st.write("Here users will be able to input expressions and see translations.")
+# ---- HOME PAGE ----
+if page == "Home":
+    st.header("🏠 Home")
+    st.image(
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfd5j0K8WAz8so_1o2VVLWW8uZ77kwzr_8kg&s",
+        use_column_width=True,
+    )
+    st.write(
+        """
+        Unilang is a platform for:
+        - Exploring idioms and jokes across the world  
+        - Learning how expressions vary by culture  
+        - Seeing translations and humorous equivalents  
+        """
+    )
 
-# --- Leaderboard tab (blank) ---
-with tab3:
-    st.markdown("<h2>Leaderboard Page (coming soon)</h2>", unsafe_allow_html=True)
-    st.write("This page will show the most popular idioms and jokes.")
+# ---- TRANSLATION PAGE ----
+elif page == "Translation":
+    st.header("🔄 Translation")
+    st.write("Translation page coming soon! Users will input expressions and see translations here.")
 
-# --- Map tab ---
-with tab4:
-    # --- Header image ---
-    st.image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfd5j0K8WAz8so_1o2VVLWW8uZ77kwzr_8kg&s", use_column_width=True)
-    st.markdown("<h1 style='text-align:center; margin-bottom:0;'>🌍 Unilang - World Map</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center; margin-top:0; margin-bottom:10px;'>Unity through language — see how expressions connect globally!</p>", unsafe_allow_html=True)
+# ---- LEADERBOARD PAGE ----
+elif page == "Leaderboard":
+    st.header("🏆 Leaderboard")
+    st.write("Leaderboard page coming soon! Popular idioms and jokes will appear here.")
+
+# ---- MAP PAGE ----
+elif page == "Map":
+    st.header("🗺️ World Map of Idioms & Jokes")
 
     # --- Filters and legend ---
     filter_col, legend_col = st.columns([2,1])
@@ -53,15 +62,6 @@ with tab4:
         {"input": "Why did the chicken cross the road?", "literal": "A classic joke", "type": "Joke",
          "countries": ["United States","Brazil","Japan"],
          "top3": [("France","Pourquoi le poulet a traversé la route?"),("Germany","Warum ging das Huhn über die Straße?"),("Brazil","Por que a galinha atravessou a estrada?")]},
-        {"input": "Piece of cake", "literal": "Something very easy", "type": "Idiom",
-         "countries": ["United States","United Kingdom","Spain","France","Germany"],
-         "top3": [("France","C'est du gâteau"),("Germany","Kinderspiel"),("Spain","Pan comido")]},
-        {"input": "When pigs fly", "literal": "Something impossible", "type": "Idiom",
-         "countries": ["United States","United Kingdom","Spain"],
-         "top3": [("France","Quand les poules auront des dents"),("Germany","Wenn Schweine fliegen"),("Spain","Cuando las ranas críen pelo")]},
-        {"input": "Knock knock. Who’s there?", "literal": "Classic joke setup", "type": "Joke",
-         "countries": ["United Kingdom","United States","Japan"],
-         "top3": [("France","Toc, toc, qui est là?"),("Germany","Klopf, klopf, wer ist da?"),("Japan","誰かいる？")]}
     ]
 
     country_coords = {

@@ -19,7 +19,6 @@ if st.sidebar.button("Map"):
     st.session_state.page = "Map"
 
 # ---- IMAGE RENDER FUNCTIONS ----
-# Uses: logo.png
 def show_logo():
     st.markdown(
         """
@@ -30,7 +29,6 @@ def show_logo():
         unsafe_allow_html=True
     )
 
-# Uses: header.jpg
 def show_header():
     st.markdown(
         """
@@ -43,7 +41,7 @@ def show_header():
 
 # ---- HOME PAGE ----
 if st.session_state.page == "Home":
-    show_logo()   # ← uses logo.png
+    show_logo()
     st.header("🏠 Home")
     st.write(
         """
@@ -55,19 +53,19 @@ if st.session_state.page == "Home":
 
 # ---- TRANSLATION PAGE ----
 elif st.session_state.page == "Translation":
-    show_header()  # ← uses header.jpg
+    show_header()
     st.header("🔄 Translation")
     st.write("This page will let users input expressions and see translations (coming soon).")
 
 # ---- LEADERBOARD PAGE ----
 elif st.session_state.page == "Leaderboard":
-    show_header()  # ← uses header.jpg
+    show_header()
     st.header("🏆 Leaderboard")
     st.write("This page will display the most popular idioms and jokes (coming soon).")
 
 # ---- MAP PAGE ----
 elif st.session_state.page == "Map":
-    show_header()  # ← uses header.jpg
+    show_header()
     st.header("🗺️ World Map of Idioms & Jokes")
     st.write("Filter and explore idioms & jokes across countries!")
 

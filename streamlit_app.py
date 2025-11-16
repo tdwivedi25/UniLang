@@ -2,23 +2,37 @@ import streamlit as st
 import pandas as pd
 import random
 
-# ------------------------------
+# ----------------------------------
 # PAGE CONFIG
-# ------------------------------
+# ----------------------------------
 st.set_page_config(page_title="UniLang", layout="wide")
 
-# ------------------------------
-# LOAD TRANSLATION DATA
-# ------------------------------
+# ----------------------------------
+# LOAD CSV (English, French, German, Spanish)
+# ----------------------------------
 @st.cache_data
 def load_data():
     return pd.read_csv("translations.csv")
 
 translation_data = load_data()
 
-# ------------------------------
-# PRELOADED IDIOMS + JOKES
-# ------------------------------
+# ----------------------------------
+# TRANSLATION FUNCTION (Matches your CSV)
+# ----------------------------------
+def get_translation(text, lang):
+    text = text.strip().lower()
+
+    # Check English column ONLY
+    row = translation_data[translation_data["English"].str.lower() == text]
+
+    if not row.empty:
+        return row[lang].iloc[0]   # lang is the actual column name (Spanish, French, German)
+
+    return "No translation found in CSV."
+
+# ----------------------------------
+# PRELOADED ITEMS (do NOT depend on CSV)
+# ----------------------------------
 preloaded_items = [
     {"text": "Break the ice", "country": "USA", "type": "Idiom"},
     {"text": "Spill the tea", "country": "USA", "type": "Idiom"},
@@ -27,93 +41,77 @@ preloaded_items = [
     {"text": "I told my computer I needed a break, and it said 'No problem — I'll go to sleep.'", "country": "India", "type": "Joke"},
 ]
 
-# ------------------------------
-# TRANSLATION FUNCTION
-# ------------------------------
-def get_translation(text, lang):
-    text = text.strip().lower()
-    lang = lang.strip().lower()
-
-    row = translation_data[
-        (translation_data["input"].str.lower() == text) &
-        (translation_data["language"].str.lower() == lang)
-    ]
-
-    if not row.empty:
-        return row["translation"].iloc[0]
-
-    return "No translation found."
-
-# ------------------------------
+# ----------------------------------
 # SESSION STATE
-# ------------------------------
+# ----------------------------------
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
 if "entries" not in st.session_state:
     st.session_state.entries = preloaded_items.copy()
 
-# ------------------------------
-# NAVIGATION HANDLER
-# ------------------------------
+# ----------------------------------
+# NAVIGATION
+# ----------------------------------
 def go_to(page):
     st.session_state.page = page
 
-# ------------------------------
+# ----------------------------------
+# SIDEBAR MENU
+# ----------------------------------
+with st.sidebar:
+    st.title("🌍 UniLang Menu")
+    st.button("Home", on_click=lambda: go_to("home"))
+    st.button("Translator", on_click=lambda: go_to("translator"))
+    st.button("Map", on_click=lambda: go_to("map"))
+    st.button("Leaderboard", on_click=lambda: go_to("leaderboard"))
+
+# ----------------------------------
 # HOME PAGE
-# ------------------------------
+# ----------------------------------
 if st.session_state.page == "home":
-    st.markdown("<h1 style='text-align: left;'>🌍 UniLang</h1>", unsafe_allow_html=True)
-    st.markdown(
-        "<p style='text-align: left; font-size:18px;'>A fun way to explore idioms, jokes, and translations across countries!</p>",
-        unsafe_allow_html=True
-    )
+    st.markdown("<h1>🌍 UniLang</h1>", unsafe_allow_html=True)
+    st.image("globe.png", width=250)
 
-    st.image("globe.png", width=300)
-
-    if st.button("Get Started", use_container_width=False):
+    if st.button("Get Started"):
         go_to("translator")
 
-# ------------------------------
+# ----------------------------------
 # TRANSLATOR PAGE
-# ------------------------------
+# ----------------------------------
 elif st.session_state.page == "translator":
-    st.markdown("## 🔤 Translation Playground")
+    st.header("🔤 Translation Playground")
 
-    user_text = st.text_input("Enter a phrase:")
-    lang = st.selectbox("Translate to:", ["Spanish", "French", "German", "Hindi", "Korean"])
+    user_text = st.text_input("Enter a phrase (must match CSV English column):")
+
+    lang = st.selectbox(
+        "Translate to:",
+        ["Spanish", "French", "German"]
+    )
 
     if st.button("Translate"):
         translation = get_translation(user_text, lang)
         st.success(f"**Translation:** {translation}")
 
-        # Save to entries
         st.session_state.entries.append({
             "text": user_text,
-            "country": random.choice(["USA", "France", "Spain", "Germany", "India", "Korea"]),
+            "country": random.choice(["USA", "France", "Spain", "Germany", "India"]),
             "type": "User"
         })
 
-    st.button("View Map", on_click=lambda: go_to("map"))
-    st.button("View Leaderboard", on_click=lambda: go_to("leaderboard"))
-
-# ------------------------------
-# MAP PAGE
-# ------------------------------
+# ----------------------------------
+# MAP PAGE (simple)
+# ----------------------------------
 elif st.session_state.page == "map":
-    st.markdown("## 🗺️ Global Idioms & Jokes Map (Simple Demo)")
-
+    st.header("🗺️ Global Idioms & Jokes Map (Simple Demo)")
     df = pd.DataFrame(st.session_state.entries)
-
     st.dataframe(df, use_container_width=True)
 
-    st.button("Back", on_click=lambda: go_to("translator"))
-
-# ------------------------------
-# LEADERBOARD PAGE
-# ------------------------------
+# ----------------------------------
+# LEADERBOARD
+# ----------------------------------
 elif st.session_state.page == "leaderboard":
-    st.markdown("## 🏆 Leaderboard")
+    st.header("🏆 Leaderboard")
 
     df = pd.DataFrame(st.session_state.entries)
 
@@ -125,5 +123,3 @@ elif st.session_state.page == "leaderboard":
     )
 
     st.dataframe(leaderboard, use_container_width=True)
-
-    st.button("Back", on_click=lambda: go_to("translator"))

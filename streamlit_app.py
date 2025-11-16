@@ -1,7 +1,10 @@
 import streamlit as st
 import plotly.graph_objects as go
 import random
-import requests
+from transformers import MarianMTModel, MarianTokenizer
+
+# ---- INSTALLATION NOTE ----
+# Make sure to run: pip install transformers sentencepiece
 
 # ---- APP CONFIG ----
 st.set_page_config(page_title="UniLang", page_icon="🌍", layout="wide")
@@ -24,13 +27,15 @@ if st.sidebar.button("World of Words"): st.session_state.page = "World of Words"
 HOME_LOGO = "globe.png"
 OTHER_HEADER = "header.jpg"
 
-# ---- Sample translations and data ----
-mock_translations = {
-    "Break a leg": {"France":"Bonne chance","Germany":"Viel Glück","Spain":"Buena suerte"},
-    "Why did the chicken cross the road?":{"France":"Pourquoi le poulet a traversé la route?","Germany":"Warum ging das Huhn über die Straße?","Spain":"Por qué cruzó el pollo la calle?"},
-    "Knock knock": {"France":"Toc toc","Germany":"Klopf klopf","Spain":"Toc toc"}
-}
+# ---- Dataset of sample idioms/jokes ----
+preloaded_submissions = [
+    {"input":"Break a leg","type":"Idiom"},
+    {"input":"Why did the chicken cross the road?","type":"Joke"},
+    {"input":"Knock knock","type":"Joke"},
+    {"input":"Piece of cake","type":"Idiom"}
+]
 
+# ---- Country coordinates ----
 country_coords = {
     "United States":[38,-97],
     "United Kingdom":[54,-2],
@@ -40,6 +45,30 @@ country_coords = {
     "Brazil":[-10,-55],
     "Japan":[36,138]
 }
+
+# ---- Load Hugging Face translation models ----
+@st.cache_resource
+def load_models():
+    langs = ["fr","de","es","it","pt","ja"]
+    models = {}
+    for lang in langs:
+        model_name = f'Helsinki-NLP/opus-mt-en-{lang}'
+        tokenizer = MarianTokenizer.from_pretrained(model_name)
+        model = MarianMTModel.from_pretrained(model_name)
+        models[lang] = (tokenizer, model)
+    return models
+
+translation_models = load_models()
+
+# ---- Helper to translate text ----
+def translate_text(text, target_lang_code):
+    if target_lang_code not in translation_models:
+        return text
+    tokenizer, model = translation_models[target_lang_code]
+    batch = tokenizer([text], return_tensors="pt")
+    generated = model.generate(**batch)
+    tgt_text = tokenizer.decode(generated[0], skip_special_tokens=True)
+    return tgt_text
 
 # ---- Helper to add submission ----
 def add_submission(text, typ, translation, unity_percent, top3):
@@ -54,25 +83,16 @@ def add_submission(text, typ, translation, unity_percent, top3):
     st.session_state.submissions.append(data)
     st.session_state.map_points.append(data)
 
-# ---- Function: LibreTranslate ----
-def translate_text(text, target_lang):
-    lang_map = {"France":"fr","Germany":"de","Spain":"es"}
-    if target_lang not in lang_map:
-        return text
-    try:
-        response = requests.post(
-            "https://libretranslate.de/translate",
-            data={"q": text, "source":"en", "target": lang_map[target_lang], "format":"text"}
-        )
-        if response.status_code == 200:
-            return response.json().get("translatedText", text)
-    except:
-        return text
-    return text
+# Preload map and leaderboard with initial data
+if len(st.session_state.submissions) == 0:
+    for item in preloaded_submissions:
+        translation = translate_text(item["input"], "fr")
+        unity_percent = random.randint(70,100)
+        top3 = random.sample(list(country_coords.keys()),3)
+        add_submission(item["input"], item["type"], translation, unity_percent, top3)
 
 # ---------------- UNITY HUB ----------------
 if st.session_state.page == "Unity Hub":
-    # Home page alignment: CENTER
     st.image(HOME_LOGO, width=300)
     st.markdown("<h1 style='text-align:center;color:#1F77B4;font-size:60px;'>Welcome to <b>UniLang</b>! 🌍</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align:center;color:#FF7F0E;font-size:28px;'>Where languages and cultures unite!</h3>", unsafe_allow_html=True)
@@ -84,7 +104,7 @@ if st.session_state.page == "Unity Hub":
     with col2:
         if st.button("🎯 Get Started!"):
             st.session_state.page = "Language Lab"
-            st.experimental_rerun()
+            st.experimental_rerun()  # ensures immediate navigation
 
     # Animated emoji
     st.markdown("""
@@ -107,19 +127,17 @@ elif st.session_state.page == "Language Lab":
     with col_input:
         user_text = st.text_input("Enter text:")
     with col_lang:
-        target_lang = st.selectbox("Translate to", ["France","Germany","Spain"])
+        target_lang_name = st.selectbox("Translate to", ["French","German","Spanish","Italian","Portuguese","Japanese"])
+        lang_codes = {"French":"fr","German":"de","Spanish":"es","Italian":"it","Portuguese":"pt","Japanese":"ja"}
+        target_lang = lang_codes[target_lang_name]
 
     if st.button("Translate!"):
         if user_text.strip() == "":
             st.warning("Please enter some text!")
         else:
             # --- Translation ---
-            if user_text in mock_translations:
-                translation = mock_translations[user_text].get(target_lang, user_text)
-            else:
-                # Use LibreTranslate for actual contextual translation
-                translation = translate_text(user_text, target_lang)
-            st.markdown(f"**Translation in {target_lang}:** {translation}")
+            translation = translate_text(user_text, target_lang)
+            st.markdown(f"**Translation in {target_lang_name}:** {translation}")
 
             # --- Unity Meter ---
             unity_percent = random.randint(60, 100)
@@ -139,17 +157,19 @@ elif st.session_state.page == "World of Words":
     st.header("🗺️ World of Words")
     st.write("Explore idioms and jokes across countries!")
 
+    # --- Filters ---
     filter_col, legend_col = st.columns([2,1])
     with filter_col:
         filter_type = st.radio("Filter by Type", ["All","Idiom","Joke"], horizontal=True)
     with legend_col:
         st.markdown("<p style='margin:0;'><span style='color:blue;'>● Idiom</span> &nbsp;&nbsp;<span style='color:orange;'>● Joke</span></p>", unsafe_allow_html=True)
 
-    # Map
+    # --- Map ---
     lats, lons, colors, texts, sizes = [], [], [], [], []
+
     for sub in st.session_state.map_points:
         if filter_type=="All" or sub.get("type","Unknown")==filter_type:
-            unity = sub.get("unity_percent", random.randint(60,100))
+            unity = sub.get("unity_percent", random.randint(60, 100))
             top3 = sub.get("top3", random.sample(list(country_coords.keys()),3))
             translation = sub.get("translation", sub.get("input","Unknown"))
 
@@ -161,6 +181,7 @@ elif st.session_state.page == "World of Words":
                     colors.append("blue" if sub.get("type","Idiom")=="Idiom" else "orange")
                     sizes.append(10 + unity/5)
 
+                    # Hover with top3 in rectangle format
                     top3_html = "<br>".join([f"&#9632; {c}" for c in top3])
                     hover_text = (
                         f"<b>{sub.get('input','Unknown')} ({sub.get('type','Unknown')})</b><br>"
@@ -196,6 +217,7 @@ elif st.session_state.page == "Top Voices":
     st.image(OTHER_HEADER, width=600)
     st.header("🏆 Leadership Dashboard")
 
+    # Top expressions
     st.subheader("🌟 Top Expressions")
     all_texts = [s.get("input","") for s in st.session_state.submissions]
     top_texts = {text:all_texts.count(text) for text in all_texts if text}
@@ -203,6 +225,7 @@ elif st.session_state.page == "Top Voices":
     for text,count in top_sorted[:5]:
         st.markdown(f"- {text} ({count} submissions)")
 
+    # Most humorous countries
     country_counts = {c:0 for c in country_coords.keys()}
     for sub in st.session_state.submissions:
         for c in sub.get("countries",[]):

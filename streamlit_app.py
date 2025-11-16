@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 import random
 
 # ---- APP CONFIG ----
-st.set_page_config(page_title="Unilang", page_icon="🌍", layout="wide")
+st.set_page_config(page_title="UniLang", page_icon="🌍", layout="wide")
 
 # ---- Initialize session state ----
 if "page" not in st.session_state:
@@ -20,7 +20,7 @@ if st.sidebar.button("Top Voices"): st.session_state.page = "Top Voices"
 if st.sidebar.button("World of Words"): st.session_state.page = "World of Words"
 
 # ---- Images ----
-HOME_LOGO = "logo.png"
+HOME_LOGO = "globe.png"
 OTHER_HEADER = "header.jpg"
 
 # ---- Sample translations and data ----

@@ -13,6 +13,8 @@ if "map_points" not in st.session_state:
     st.session_state.map_points = []
 if "submissions" not in st.session_state:
     st.session_state.submissions = []
+if "start_clicked" not in st.session_state:
+    st.session_state.start_clicked = False
 
 # ---- Sidebar Navigation ----
 if st.sidebar.button("Unity Hub"): st.session_state.page = "Unity Hub"
@@ -24,11 +26,7 @@ if st.sidebar.button("World of Words"): st.session_state.page = "World of Words"
 HOME_LOGO = "globe.png"
 OTHER_HEADER = "header.jpg"
 
-# ---- Load dataset ----
-df_translations = pd.read_csv("translations.csv")  # English,French,German,Spanish
-available_langs = ["French", "German", "Spanish"]
-
-# ---- Country Coordinates ----
+# ---- Country coordinates ----
 country_coords = {
     "United States":[38,-97],
     "United Kingdom":[54,-2],
@@ -38,6 +36,19 @@ country_coords = {
     "Brazil":[-10,-55],
     "Japan":[36,138]
 }
+
+# ---- Load CSV dataset ----
+# CSV should have columns: 'text', 'type', 'France', 'Germany', 'Spain'
+translations_df = pd.read_csv("translations.csv")
+
+# ---- Helper to get translation ----
+def get_translation(user_text, target_lang):
+    row = translations_df[translations_df["text"].str.lower() == user_text.lower()]
+    if not row.empty:
+        return row.iloc[0][target_lang]
+    else:
+        # fallback: shuffle letters per word
+        return " ".join(["".join(random.sample(word, len(word))) for word in user_text.split()])
 
 # ---- Helper to add submission ----
 def add_submission(text, typ, translation, unity_percent, top3):
@@ -52,55 +63,42 @@ def add_submission(text, typ, translation, unity_percent, top3):
     st.session_state.submissions.append(data)
     st.session_state.map_points.append(data)
 
-# ---- Helper to get translation ----
-def get_translation(text, target_lang):
-    row = df_translations[df_translations['English'].str.lower() == text.lower()]
-    if not row.empty:
-        return row[target_lang].values[0]
-    else:
-        return " ".join(["".join(random.sample(word, len(word))) for word in text.split()])
+# ---- Preload 5 idioms and 5 jokes ----
+preloaded = [
+    {"text":"Break a leg","type":"Idiom"},
+    {"text":"Knock on wood","type":"Idiom"},
+    {"text":"Piece of cake","type":"Idiom"},
+    {"text":"Raining cats and dogs","type":"Idiom"},
+    {"text":"Spill the beans","type":"Idiom"},
+    {"text":"Why did the chicken cross the road?","type":"Joke"},
+    {"text":"Knock knock","type":"Joke"},
+    {"text":"I told my computer I needed a break, it said 'No problem, I'll go to sleep'","type":"Joke"},
+    {"text":"Why don’t scientists trust atoms? Because they make up everything!","type":"Joke"},
+    {"text":"Parallel lines have so much in common. It’s a shame they’ll never meet.","type":"Joke"}
+]
 
-# ---- Preload some idioms and jokes ----
-if not st.session_state.submissions:
-    preload = [
-        {"text":"Break a leg","type":"Idiom"},
-        {"text":"Spill the beans","type":"Idiom"},
-        {"text":"Piece of cake","type":"Idiom"},
-        {"text":"Hit the sack","type":"Idiom"},
-        {"text":"Let the cat out of the bag","type":"Idiom"},
-        {"text":"Why did the chicken cross the road?","type":"Joke"},
-        {"text":"Knock knock","type":"Joke"},
-        {"text":"I told my wife she was drawing her eyebrows too high. She looked surprised.","type":"Joke"},
-        {"text":"Why don’t scientists trust atoms? Because they make up everything!","type":"Joke"},
-        {"text":"Why did the scarecrow win an award? Because he was outstanding in his field.","type":"Joke"}
-    ]
-    for item in preload:
-        translation = get_translation(item["text"], random.choice(available_langs))
-        unity_percent = random.randint(70,100)
-        top3 = random.sample(list(country_coords.keys()),3)
-        add_submission(item["text"], item["type"], translation, unity_percent, top3)
+for item in preloaded:
+    user_text = item["text"]
+    choice_type = item["type"]
+    target_lang = random.choice(["France","Germany","Spain"])
+    translation = get_translation(user_text, target_lang)
+    unity_percent = random.randint(70,100)
+    top3 = random.sample(list(country_coords.keys()),3)
+    add_submission(user_text, choice_type, translation, unity_percent, top3)
 
 # ---------------- UNITY HUB ----------------
 if st.session_state.page == "Unity Hub":
     st.image(HOME_LOGO, width=300)
-    st.markdown("<h1 style='text-align:center;color:#1F77B4;font-size:60px;'>Welcome to <b>UniLang</b>! 🌍</h1>", unsafe_allow_html=True)
-    st.markdown("<h3 style='text-align:center;color:#FF7F0E;font-size:28px;'>Where languages and cultures unite!</h3>", unsafe_allow_html=True)
-    st.markdown("<div style='text-align:center;font-size:20px;line-height:1.8;margin-bottom:20px;'>🚀 <b>Explore idioms and jokes from around the world</b><br>🗣️ <b>Learn how expressions are translated in different languages</b><br>🌟 <b>Discover the most popular phrases and share your favorites</b></div>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:left;color:#1F77B4;font-size:60px;'>Welcome to <b>UniLang</b>! 🌍</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:left;color:#FF7F0E;font-size:28px;'>Where languages and cultures unite!</h3>", unsafe_allow_html=True)
+    st.markdown("<div style='text-align:left;font-size:20px;line-height:1.8;margin-bottom:20px;'>🚀 <b>Explore idioms and jokes from around the world</b><br>🗣️ <b>Learn how expressions are translated in different languages</b><br>🌟 <b>Discover the most popular phrases and share your favorites</b></div>", unsafe_allow_html=True)
     st.markdown("<hr>", unsafe_allow_html=True)
 
+    # Centered Get Started Button
     col1, col2, col3 = st.columns([1,2,1])
     with col2:
         if st.button("🎯 Get Started!"):
             st.session_state.page = "Language Lab"
-            st.experimental_rerun()
-
-    st.markdown("""
-    <style>
-    @keyframes bounce {0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
-    .bounce {display:inline-block;animation:bounce 1s infinite;}
-    </style>
-    <p style='text-align:center;font-size:40px;'><span class='bounce'>🌐✨🎉</span></p>
-    """, unsafe_allow_html=True)
 
 # ---------------- LANGUAGE LAB ----------------
 elif st.session_state.page == "Language Lab":
@@ -114,21 +112,19 @@ elif st.session_state.page == "Language Lab":
     with col_input:
         user_text = st.text_input("Enter text:")
     with col_lang:
-        target_lang = st.selectbox("Translate to", available_langs)
+        target_lang = st.selectbox("Translate to", ["France","Germany","Spain"])
 
     if st.button("Translate!"):
         if user_text.strip() == "":
             st.warning("Please enter some text!")
         else:
             translation = get_translation(user_text, target_lang)
-            st.markdown(f"**Translation in {target_lang}:** {translation}")
-
             unity_percent = random.randint(60, 100)
+            top3 = random.sample(list(country_coords.keys()), 3)
+            st.markdown(f"**Translation in {target_lang}:** {translation}")
             st.progress(unity_percent)
             st.markdown(f"**Unity Meter:** {unity_percent}% resemblance")
-            top3 = random.sample(list(country_coords.keys()), 3)
             st.markdown(f"**Top 3 countries with similar expression:** {', '.join(top3)}")
-
             add_submission(user_text, choice_type, translation, unity_percent, top3)
 
 # ---------------- WORLD OF WORDS ----------------
@@ -145,6 +141,7 @@ elif st.session_state.page == "World of Words":
 
     lats, lons, colors, texts, sizes = [], [], [], [], []
 
+    # ---- FIXED: show both types when "All" is selected ----
     for sub in st.session_state.map_points:
         if filter_type=="All" or sub.get("type","Unknown")==filter_type:
             unity = sub.get("unity_percent", random.randint(60, 100))
@@ -158,7 +155,6 @@ elif st.session_state.page == "World of Words":
                     lons.append(lon)
                     colors.append("blue" if sub.get("type","Idiom")=="Idiom" else "orange")
                     sizes.append(10 + unity/5)
-
                     top3_html = "<br>".join([f"&#9632; {c}" for c in top3])
                     hover_text = (
                         f"<b>{sub.get('input','Unknown')} ({sub.get('type','Unknown')})</b><br>"

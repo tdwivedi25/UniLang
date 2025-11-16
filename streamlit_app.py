@@ -58,8 +58,27 @@ def get_translation(text, target_lang):
     if not row.empty:
         return row[target_lang].values[0]
     else:
-        # fallback: shuffle words letters
         return " ".join(["".join(random.sample(word, len(word))) for word in text.split()])
+
+# ---- Preload some idioms and jokes ----
+if not st.session_state.submissions:
+    preload = [
+        {"text":"Break a leg","type":"Idiom"},
+        {"text":"Spill the beans","type":"Idiom"},
+        {"text":"Piece of cake","type":"Idiom"},
+        {"text":"Hit the sack","type":"Idiom"},
+        {"text":"Let the cat out of the bag","type":"Idiom"},
+        {"text":"Why did the chicken cross the road?","type":"Joke"},
+        {"text":"Knock knock","type":"Joke"},
+        {"text":"I told my wife she was drawing her eyebrows too high. She looked surprised.","type":"Joke"},
+        {"text":"Why don’t scientists trust atoms? Because they make up everything!","type":"Joke"},
+        {"text":"Why did the scarecrow win an award? Because he was outstanding in his field.","type":"Joke"}
+    ]
+    for item in preload:
+        translation = get_translation(item["text"], random.choice(available_langs))
+        unity_percent = random.randint(70,100)
+        top3 = random.sample(list(country_coords.keys()),3)
+        add_submission(item["text"], item["type"], translation, unity_percent, top3)
 
 # ---------------- UNITY HUB ----------------
 if st.session_state.page == "Unity Hub":
@@ -104,7 +123,6 @@ elif st.session_state.page == "Language Lab":
             translation = get_translation(user_text, target_lang)
             st.markdown(f"**Translation in {target_lang}:** {translation}")
 
-            # Unity meter and top3 countries
             unity_percent = random.randint(60, 100)
             st.progress(unity_percent)
             st.markdown(f"**Unity Meter:** {unity_percent}% resemblance")
